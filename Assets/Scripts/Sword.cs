@@ -5,6 +5,8 @@ using System.Collections;
 
 public class Sword : MonoBehaviour
 {
+    [SerializeField] private GameObject slashAnimPrefab;
+    [SerializeField] private Transform slashAnimSpawnPoint;
     private PlayerControls playerControls;
     private Animator animator;
     private ActiveWeapon activeWeapon;
