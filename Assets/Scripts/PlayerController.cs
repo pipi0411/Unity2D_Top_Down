@@ -3,12 +3,18 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public bool FacingLeft
+    {
+        get { return facingLeft; }
+        private set { facingLeft = value; }
+    }
     [SerializeField] private float moveSpeed = 1f;
     private PlayerControls playerControls;
     private Vector2 movement;
     private Rigidbody2D rb;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+    private bool facingLeft = false;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -46,10 +52,12 @@ public class PlayerController : MonoBehaviour
         if (mousePos.x < playerScreenPos.x)
         {
             spriteRenderer.flipX = true;
+            FacingLeft = true;
         }
         else
         {
             spriteRenderer.flipX = false;
+            FacingLeft = false;
         }
     }
 
