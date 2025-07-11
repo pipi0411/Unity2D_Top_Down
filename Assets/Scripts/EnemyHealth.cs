@@ -2,15 +2,26 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] private int startingHealth = 3;
 
-    // Update is called once per frame
-    void Update()
+    private int currentHealth;
+    private void Start()
     {
-        
+        currentHealth = startingHealth;
+    }
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        Debug.Log($"Enemy took {damage} damage. Current health: {currentHealth}");
+        DetectDeath();
+    }
+    private void DetectDeath()
+    {
+        if (currentHealth <= 0)
+        {
+            Debug.Log("Enemy has died.");
+            // Add death logic here, such as playing an animation or destroying the enemy
+            Destroy(gameObject);
+        }
     }
 }
