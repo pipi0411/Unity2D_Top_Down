@@ -1,15 +1,21 @@
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public class EnemyHealth : MonoBehaviour
 {
     [SerializeField] private int startingHealth = 3;
-
+    [SerializeField] private GameObject deathVFXPrefab;
     private int currentHealth;
     private KnockBack knockBack;
+    private Flash flash;
+    private void Awake()
+    {
+        knockBack = GetComponent<KnockBack>();
+        flash = GetComponent<Flash>();
+    }
     private void Start()
     {
         currentHealth = startingHealth;
-        knockBack = GetComponent<KnockBack>();
     }
     public void TakeDamage(int damage)
     {
@@ -21,13 +27,16 @@ public class EnemyHealth : MonoBehaviour
             knockBack.GetKnockedBack(PlayerController.Instance.transform, 15f);
         }
         
-        DetectDeath();
+        if (flash != null)
+        {
+            StartCoroutine(flash.FlashRoutine());
+        }
     }
-    private void DetectDeath()
+    public void DetectDeath()
     {
         if (currentHealth <= 0)
         {
-
+            Instantiate(deathVFXPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
     }
