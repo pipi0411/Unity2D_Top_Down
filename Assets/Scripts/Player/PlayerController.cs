@@ -2,13 +2,13 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour
+
+public class PlayerController : Singleton<PlayerController>
 {
     public bool FacingLeft
     {
         get { return facingLeft; }
     }
-    public static PlayerController Instance { get; private set; }
     [SerializeField] private float moveSpeed = 1f;
     [SerializeField] private TrailRenderer myTrailRenderer;
     [SerializeField] private float dashSpeed = 4f;
@@ -20,30 +20,60 @@ public class PlayerController : MonoBehaviour
     private float startingMoveSpeed;
     private bool facingLeft = false;
     private bool isDashing = false;
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
+        // Kiểm tra duplicate trước
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
+            Destroy(this.gameObject);
             return;
         }
+        
+        base.Awake();
+        
+        // Khởi tạo components
         rb = GetComponent<Rigidbody2D>();
         playerControls = new PlayerControls();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
-    private void Start()
-    {
-        playerControls.Combat.Dash.performed += _ => Dash();
-        startingMoveSpeed = moveSpeed;
-    }
     private void OnEnable()
     {
+       if (playerControls != null)
+       {
         playerControls.Enable();
+       }
+    }
+    private void OnDisable()
+    {
+        // Null check
+        if (playerControls != null)
+        {
+            playerControls.Disable();
+        }
+    }
+    
+    protected override void OnDestroy()
+    {
+        if (playerControls != null)
+        {
+            try
+            {
+                playerControls.Combat.Dash.performed -= _ => Dash();
+                playerControls.Dispose();
+            }
+            catch (System.Exception) { }
+        }
+        base.OnDestroy();
+    }
+    private void Start()
+    {
+        if (playerControls != null)
+        {   
+            playerControls.Enable();
+            playerControls.Combat.Dash.performed += _ => Dash();
+        }
+        startingMoveSpeed = moveSpeed;
     }
     private void Update()
     {
@@ -66,8 +96,12 @@ public class PlayerController : MonoBehaviour
     }
     private void AdjustPlayerFacingDirection()
     {
+        // ✅ Kiểm tra null safety
+        if (Mouse.current == null) return;
+        
         Vector3 mousePos = Mouse.current.position.ReadValue();
         Vector3 playerScreenPos = Camera.main.WorldToScreenPoint(transform.position);
+        
         if (mousePos.x < playerScreenPos.x)
         {
             spriteRenderer.flipX = true;
