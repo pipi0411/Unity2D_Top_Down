@@ -15,7 +15,10 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
         
         instance = this as T;
-        DontDestroyOnLoad(gameObject);
+        if (!gameObject.transform.parent)
+        {
+            DontDestroyOnLoad(gameObject);
+        }
     }
     
     protected virtual void OnDestroy()
