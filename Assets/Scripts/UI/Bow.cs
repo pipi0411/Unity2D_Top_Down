@@ -3,9 +3,15 @@ using System.Collections;
 
 public class Bow : MonoBehaviour, IWeapon
 {
+    [SerializeField] private WeaponInfor weaponInfo;
+
     public void Attack()
     {
         Debug.Log("Bow attack executed.");
-        ActiveWeapon.Instance.ToggleIsAttacking(false);
+    }
+
+    public WeaponInfor GetWeaponInfo()
+    {
+        return weaponInfo;
     }
 }
