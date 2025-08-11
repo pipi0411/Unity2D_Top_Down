@@ -5,13 +5,21 @@ using UnityEngine.InputSystem; // Thêm dòng này
 public class Staff : MonoBehaviour, IWeapon
 {
     [SerializeField] private WeaponInfor weaponInfo;
+    [SerializeField] private GameObject magicLaser;
+    [SerializeField] private Transform magicLaserSpawnPoint;
+    private Animator animator;
+    readonly int AttackHash = Animator.StringToHash("Attack");
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
     private void Update()
     {
         MouseFollowWithOffSet();
     }
     public void Attack()
     {
-        Debug.Log("Staff attack executed.");
+        animator.SetTrigger(AttackHash);
     }
     public WeaponInfor GetWeaponInfo()
     {
