@@ -18,6 +18,7 @@ public class PlayerController : Singleton<PlayerController>
     private Rigidbody2D rb;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+    private KnockBack knockBack;
     private float startingMoveSpeed;
     private bool facingLeft = false;
     private bool isDashing = false;
@@ -29,14 +30,15 @@ public class PlayerController : Singleton<PlayerController>
             Destroy(this.gameObject);
             return;
         }
-        
+
         base.Awake();
-        
+
         // Khởi tạo components
         rb = GetComponent<Rigidbody2D>();
         playerControls = new PlayerControls();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        knockBack = GetComponent<KnockBack>();
     }
     private void OnEnable()
     {
@@ -98,6 +100,7 @@ public class PlayerController : Singleton<PlayerController>
     }
     private void Move()
     {
+        if (knockBack.GettingKnockedBack) { return; }
         rb.MovePosition(rb.position + movement * (moveSpeed * Time.fixedDeltaTime));
     }
     private void AdjustPlayerFacingDirection()
