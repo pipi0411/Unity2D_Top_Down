@@ -4,7 +4,9 @@ public class Projectile : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 22f;
     [SerializeField] private GameObject particleOnHitPrefabVFX;
-    private WeaponInfor weaponInfo;
+    [SerializeField] private bool isEnemyProjectile = false;
+    [SerializeField] private float projectileRange = 10f;
+
     private Vector3 startPosition;
     
     private void Start()
@@ -17,47 +19,36 @@ public class Projectile : MonoBehaviour
         MoveProjectile();
         DetectFireDistance();
     }
-    
-    public void UpdateWeaponInfo(WeaponInfor weaponInfor)
+    public void UpdateProjectileRange(float projectileRange)
     {
-        weaponInfo = weaponInfor;
+        this.projectileRange = projectileRange;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Bỏ qua các trigger collider
-        if (other.isTrigger) return;
-        
-        // Kiểm tra xem có phải enemy không
-        EnemyHealth enemyHealth = other.GetComponent<EnemyHealth>();
-        if (enemyHealth != null)
+        EnemyHealth enemyHealth = other.gameObject.GetComponent<EnemyHealth>();
+        Indestructible indestructible = other.gameObject.GetComponent<Indestructible>();
+        PlayerHealth player = other.gameObject.GetComponent<PlayerHealth>();
+        if (!other.isTrigger && (enemyHealth || indestructible || player))
         {
-            // Gây damage cho enemy
-
-            Instantiate(particleOnHitPrefabVFX, transform.position, Quaternion.identity);
-            Destroy(gameObject);
-            return;
+            if ((player && isEnemyProjectile) || (enemyHealth && !isEnemyProjectile))
+            {
+                player?.TakeDamage(1, transform);
+                Instantiate(particleOnHitPrefabVFX, transform.position, transform.rotation);
+                Destroy(gameObject);
+            }
+            else if (!other.isTrigger && indestructible)
+            {
+                Instantiate(particleOnHitPrefabVFX, transform.position, transform.rotation);
+                Destroy(gameObject);
+            }
         }
         
-        // Kiểm tra xem có phải vật thể không thể phá hủy không
-        Indestructible indestructible = other.GetComponent<Indestructible>();
-        if (indestructible != null)
-        {
-            // Chỉ tạo effect và destroy projectile, không gây damage
-            Instantiate(particleOnHitPrefabVFX, transform.position, Quaternion.identity);
-            Destroy(gameObject);
-            return;
-        }
-        
-        // Kiểm tra các vật thể khác có thể va chạm (như tường, obstacle)
-        // Nếu không phải trigger và không phải enemy thì cũng destroy projectile
-        Instantiate(particleOnHitPrefabVFX, transform.position, Quaternion.identity);
-        Destroy(gameObject);
     }
     
     private void DetectFireDistance()
     {
-        if (weaponInfo != null && Vector3.Distance(startPosition, transform.position) > weaponInfo.weaponRange)
+        if (Vector3.Distance(transform.position, startPosition) > projectileRange)
         {
             Destroy(gameObject);
         }
