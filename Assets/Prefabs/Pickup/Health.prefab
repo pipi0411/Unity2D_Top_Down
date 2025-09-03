@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2102524825537257696
+--- !u!1 &4253479202917515168
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,40 +8,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1666660842858299353}
-  - component: {fileID: 4295160472418803586}
-  - component: {fileID: 9058040978692585951}
-  - component: {fileID: 3872182943355535777}
-  - component: {fileID: -5379081875160392772}
+  - component: {fileID: 8893726508856609057}
+  - component: {fileID: 720221701605541554}
+  - component: {fileID: 5741713220712233681}
+  - component: {fileID: 1204075397113861322}
+  - component: {fileID: 8190167344222674152}
+  - component: {fileID: 8764224993946142870}
   m_Layer: 0
-  m_Name: Crate
+  m_Name: Health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1666660842858299353
+--- !u!4 &8893726508856609057
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2102524825537257696}
+  m_GameObject: {fileID: 4253479202917515168}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2, y: -2, z: 0}
+  m_LocalPosition: {x: 2.08, y: 2.76, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &4295160472418803586
+--- !u!212 &720221701605541554
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2102524825537257696}
+  m_GameObject: {fileID: 4253479202917515168}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -58,7 +59,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: cd5e6aa3fbaa1134b965b11242761aa3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -79,7 +80,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 94ec572032ccd9a4ca7e047d1bc246fd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7da473d42b2d4b14a87da5a919764eca, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -90,13 +91,13 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!70 &9058040978692585951
+--- !u!70 &5741713220712233681
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2102524825537257696}
+  m_GameObject: {fileID: 4253479202917515168}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -120,38 +121,91 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.0029700398, y: 0.05548644}
-  m_Size: {x: 0.7607633, y: 0.9000521}
+  m_Offset: {x: -0.0021024942, y: -0.003388524}
+  m_Size: {x: 0.38836598, y: 0.38836598}
   m_Direction: 0
---- !u!114 &3872182943355535777
+--- !u!50 &1204075397113861322
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4253479202917515168}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &8190167344222674152
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2102524825537257696}
+  m_GameObject: {fileID: 4253479202917515168}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73877ff25c0f0794da63d41cd134ed61, type: 3}
+  m_Script: {fileID: 11500000, guid: 4abb39727c949fb428c0685e64d17e84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destroyVFX: {fileID: 3109109850922093144, guid: a69a80ad4dbe45a4cac2ce0ccc3dc07e, type: 3}
---- !u!114 &-5379081875160392772
+  pickUpType: 2
+  pickUpDistance: 4
+  accelartionRate: 0.4
+  moveSpeed: 2
+  animCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1.0501837
+      value: 0.00020991056
+      inSlope: -1.8779963
+      outSlope: -1.8779963
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.03131228
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  heightY: 1.5
+  popDuration: 0.5
+--- !u!114 &8764224993946142870
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2102524825537257696}
+  m_GameObject: {fileID: 4253479202917515168}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfbd68517ccfaa944952c9864a185095, type: 3}
+  m_Script: {fileID: 11500000, guid: bd83151d1f63647458ad17c48b4dcc67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goldCoin: {fileID: 4253479202917515168, guid: b0ed77fa32a703d4cb7a6be7e597b5dc, type: 3}
-  healthGlobe: {fileID: 4253479202917515168, guid: 3a94f1acb198a0e4c8afa9a6dac685e9, type: 3}
-  staminaGlobe: {fileID: 4253479202917515168, guid: 705abcdc2d488f3408172b99a2e16d27, type: 3}
