@@ -124,6 +124,7 @@ public class Pickup : MonoBehaviour
         {
             /// Trường hợp vật phẩm là GoldCoin: In ra thông báo nhặt được đồng vàng.
             case PickupType.GoldCoin:
+                EconomyManager.Instance.UpdateCurrentGold();
                 Debug.Log("Picked up a Gold Coin!");
                 break;
             /// Trường hợp vật phẩm là StaminaGlobe: In ra thông báo nhặt được quả cầu stamina.
