@@ -125,17 +125,15 @@ public class Pickup : MonoBehaviour
             /// Trường hợp vật phẩm là GoldCoin: In ra thông báo nhặt được đồng vàng.
             case PickupType.GoldCoin:
                 EconomyManager.Instance.UpdateCurrentGold();
-                Debug.Log("Picked up a Gold Coin!");
                 break;
             /// Trường hợp vật phẩm là StaminaGlobe: In ra thông báo nhặt được quả cầu stamina.
             case PickupType.StaminaGlobe:
-                Debug.Log("Picked up a Stamina Globe!");
+                Stamina.Instance.RefreshStamina();
                 break;
             /// Trường hợp vật phẩm là HealthGlobe: Gọi hàm HealPlayer từ PlayerHealth
             /// để hồi máu cho người chơi và in ra thông báo nhặt được quả cầu máu.
             case PickupType.HealthGlobe:
                 PlayerHealth.Instance.HealPlayer();
-                Debug.Log("Picked up a Health Globe!");
                 break;
             default:
                 break;
