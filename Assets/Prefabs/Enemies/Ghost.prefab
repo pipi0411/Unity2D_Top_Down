@@ -262,11 +262,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fffd2696aa74924dbd26d96135d9f70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roamChangeDirFloat: 2
-  attackRange: 5
+  enemyData: {fileID: 11400000, guid: 58087ca2309fb6f47a170d1b9c370c93, type: 2}
   enemyType: {fileID: -4620087288861130634}
-  attackCooldown: 2
-  stopMovingWhileAttacking: 1
 --- !u!114 &6820177540474206073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,7 +276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11b7059a82504b44991da49466d2b919, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  enemyData: {fileID: 11400000, guid: 58087ca2309fb6f47a170d1b9c370c93, type: 2}
 --- !u!114 &7745829775418052022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,9 +289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f8a283c0c27ebd4e9ed1145f9f2e841, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingHealth: 3
-  deathVFXPrefab: {fileID: 604905392258511773, guid: 5efc673031e92e841afa0f2b4c730460, type: 3}
-  knockBackThrust: 15
+  enemyData: {fileID: 11400000, guid: 58087ca2309fb6f47a170d1b9c370c93, type: 2}
 --- !u!114 &5853806220877657311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,8 +315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07b57310684a76b42a9fe9ce78ada62b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whileFlashMat: {fileID: 2100000, guid: b1163cc7e63782545a105996281c9059, type: 2}
-  restoreDefaultMatTime: 0.2
+  enemyData: {fileID: 11400000, guid: 58087ca2309fb6f47a170d1b9c370c93, type: 2}
 --- !u!114 &6043356159651484224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380,9 +374,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfbd68517ccfaa944952c9864a185095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goldCoin: {fileID: 4253479202917515168, guid: b0ed77fa32a703d4cb7a6be7e597b5dc, type: 3}
-  healthGlobe: {fileID: 4253479202917515168, guid: 3a94f1acb198a0e4c8afa9a6dac685e9, type: 3}
-  staminaGlobe: {fileID: 4253479202917515168, guid: 705abcdc2d488f3408172b99a2e16d27, type: 3}
-  maxGoldCoins: 7
-  maxHealthGlobes: 2
-  maxStaminaGlobes: 2

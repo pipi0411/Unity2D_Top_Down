@@ -1,10 +1,11 @@
+// Scripts/Flash.cs
 using System.Collections;
 using UnityEngine;
 
 public class Flash : MonoBehaviour
 {
-    [SerializeField] private Material whileFlashMat;
-    [SerializeField] private float restoreDefaultMatTime = 0.2f;
+    [SerializeField] private EnemyData enemyData;
+
     private Material defaultMat;
     private SpriteRenderer spriteRenderer;
 
@@ -13,14 +14,14 @@ public class Flash : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         defaultMat = spriteRenderer.material;
     }
-    public float GetRestoreMatTime()
-    {
-        return restoreDefaultMatTime;
-    }
+
     public IEnumerator FlashRoutine()
     {
-        spriteRenderer.material = whileFlashMat;
-        yield return new WaitForSeconds(restoreDefaultMatTime);
-        spriteRenderer.material = defaultMat;
+        if (enemyData.flashMaterial != null)
+        {
+            spriteRenderer.material = enemyData.flashMaterial;
+            yield return new WaitForSeconds(enemyData.flashRestoreTime);
+            spriteRenderer.material = defaultMat;
+        }
     }
 }

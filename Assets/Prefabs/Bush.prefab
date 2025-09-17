@@ -140,6 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   destroyVFX: {fileID: 3109109850922093144, guid: db28cda573e7c7c4b9a0dc215c4f54a4, type: 3}
+  enemyData: {fileID: 11400000, guid: d2b536cd598968548b75f31e9d6c8827, type: 2}
 --- !u!114 &-3250368517909163252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,9 +153,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfbd68517ccfaa944952c9864a185095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goldCoin: {fileID: 4253479202917515168, guid: b0ed77fa32a703d4cb7a6be7e597b5dc, type: 3}
-  healthGlobe: {fileID: 4253479202917515168, guid: 3a94f1acb198a0e4c8afa9a6dac685e9, type: 3}
-  staminaGlobe: {fileID: 4253479202917515168, guid: 705abcdc2d488f3408172b99a2e16d27, type: 3}
-  maxGoldCoins: 7
-  maxHealthGlobes: 1
-  maxStaminaGlobes: 1
