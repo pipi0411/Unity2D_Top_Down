@@ -1,0 +1,20 @@
+Kịch bản của trò chơi (Game Narrative)
+
+Tên trò chơi: Elara's Hero
+Thể loại: Action-Adventure / Top-Down
+Bối cảnh:
+ - Người chơi vào vai một chiến binh trẻ tuổi tên Elara, bị mắc kẹt trong một khu rừng cổ xưa bị nguyền rủa sau khi vô tình phá vỡ một cổ vật bí ẩn. Để phá bỏ lời nguyền và thoát ra, Elara phải thu thập các mảnh vỡ cổ vật, chiến đấu với quái vật, và khám phá các bí mật ẩn giấu trong rừng.
+Cốt truyện:
+
+ - Mở đầu: Elara tỉnh dậy trong rừng, nhận ra mình bị nguyền rủa và cần tìm 5 mảnh vỡ cổ vật để giải thoát. Một giọng nói bí ẩn hướng dẫn cô bắt đầu hành trình.
+ - Hành trình: Người chơi khám phá 3 khu vực (rừng sâu, đầm lầy(xương),nguyền rủa và đền cổ(boss)), thu thập tài nguyên (tiền xu, vũ khí), và đối mặt với các quái vật (như sinh vật xanh trong ảnh).
+ - Kết thúc: Sau khi thu thập đủ mảnh vỡ, Elara đối đầu với một linh hồn rừng cổ đại (trùm cuối). Khi đánh bại nó, lời nguyền được gỡ bỏ, và cô trở về thế giới bên ngoài. Một kết mở gợi ý về hành trình mới.
+
+Cơ chế gameplay:
+
+ - Di chuyển: Di chuyển tự do trong bản đồ top-down(WADS),chướng ngại vật(cây , tường).
+ - Chiến đấu: Sử dụng các loại vũ khí (kiếm, magic, cung) để đánh bại kẻ thù. Mỗi vũ khí có sức mạnh và tốc độ khác nhau.
+ - Thu thập: Tiền xu để nâng cấp vũ khí, mảnh vỡ cổ vật để hoàn thành nhiệm vụ.
+ - Khám phá: Tìm kiếm hòm kho báu hoặc thùng để nhận vật phẩm bổ trợ (hồi máu, xu,stamina).
+ - Tiến trình: Mỗi khu vực có một mảnh vỡ và quái vật trùm nhỏ, dẫn đến trận chiến cuối cùng.
+
