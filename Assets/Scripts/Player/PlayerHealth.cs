@@ -74,8 +74,24 @@ public class PlayerHealth : Singleton<PlayerHealth>
     private IEnumerator DeathLoadSceneRoutine()
     {
         yield return new WaitForSeconds(2f);
+
         Destroy(gameObject);
+
+        // Đăng ký event trước khi load
+        SceneManager.sceneLoaded += OnSceneLoadedAfterDeath;
+
         SceneManager.LoadScene(TOWN_TEXT);
+    }
+    private void OnSceneLoadedAfterDeath(Scene scene, LoadSceneMode mode)
+    {
+        WaveUI waveUI = FindFirstObjectByType<WaveUI>();
+        if (waveUI != null)
+        {
+            waveUI.RefreshUI();
+        }
+
+        // Hủy đăng ký để tránh chạy nhiều lần
+        SceneManager.sceneLoaded -= OnSceneLoadedAfterDeath;
     }
     private IEnumerator DamageRecoveryRoutine()
     {

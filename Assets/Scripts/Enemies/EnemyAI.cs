@@ -69,7 +69,7 @@ public class EnemyAI : MonoBehaviour
         pathfinding.MoveTo(dirToPlayer);
 
         // Nếu đủ gần thì Attack
-        if (distanceToPlayer <= 1f && canAttack) // 1f = melee range
+        if (distanceToPlayer <= 3f && canAttack) // 1f = melee range
         {
             canAttack = false;
             (enemyType as IEnemy)?.Attack();

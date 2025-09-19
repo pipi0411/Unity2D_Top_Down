@@ -25,6 +25,6 @@ MonoBehaviour:
   goldCoin: {fileID: 4253479202917515168, guid: b0ed77fa32a703d4cb7a6be7e597b5dc, type: 3}
   healthGlobe: {fileID: 4253479202917515168, guid: 3a94f1acb198a0e4c8afa9a6dac685e9, type: 3}
   staminaGlobe: {fileID: 4253479202917515168, guid: 705abcdc2d488f3408172b99a2e16d27, type: 3}
-  maxGoldCoins: 7
-  maxHealthGlobes: 2
-  maxStaminaGlobes: 2
+  maxGoldCoins: 10
+  maxHealthGlobes: 1
+  maxStaminaGlobes: 1

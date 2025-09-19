@@ -1,4 +1,5 @@
 // Scripts/EnemyHealth.cs
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public class EnemyHealth : MonoBehaviour
     private int currentHealth;
     private KnockBack knockBack;
     private Flash flash;
+
+    public event Action<GameObject> OnEnemyDied;
 
     private void Awake()
     {
@@ -52,6 +55,8 @@ public class EnemyHealth : MonoBehaviour
                 Instantiate(enemyData.deathVFXPrefab, transform.position, Quaternion.identity);
 
             GetComponent<PickUpSpawner>().DropItems(enemyData);
+
+            OnEnemyDied?.Invoke(gameObject); // Báo về Spawner
             Destroy(gameObject);
         }
     }
