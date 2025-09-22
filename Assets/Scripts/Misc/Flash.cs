@@ -24,4 +24,9 @@ public class Flash : MonoBehaviour
             spriteRenderer.material = defaultMat;
         }
     }
+    public void ResetFlash()
+    {
+        if (spriteRenderer != null)
+            spriteRenderer.color = Color.white;
+    }
 }

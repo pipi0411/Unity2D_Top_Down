@@ -24,6 +24,10 @@ public class WaveUI : MonoBehaviour
         canvasGroup.alpha = 0f;
         defaultScale = waveText.transform.localScale;
     }
+    private void Start()
+    {
+        RefreshUI(); // Thêm dòng này để khi scene load lại sẽ hiện wave hiện tại
+    }
 
     private void OnEnable()
     {

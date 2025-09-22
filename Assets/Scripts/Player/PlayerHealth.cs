@@ -16,18 +16,22 @@ public class PlayerHealth : Singleton<PlayerHealth>
     private KnockBack knockBack;
     private Flash flash;
     const string HEALTH_SLIDER_TEXT = "Health Slider";
-    const string TOWN_TEXT = "Scene1";
     readonly int DEATH_HASH = Animator.StringToHash("Death");
+    private Vector3 spawnPosition;
+    private Animator animator;
     protected override void Awake()
     {
         base.Awake();
         knockBack = GetComponent<KnockBack>();
         flash = GetComponent<Flash>();
+        animator = GetComponent<Animator>();
+
     }
     private void Start()
     {
         isDead = false;
         currentHealth = maxHealth;
+        spawnPosition = transform.position;
 
         UpdateHealthSlider();
     }
@@ -65,33 +69,59 @@ public class PlayerHealth : Singleton<PlayerHealth>
         if (currentHealth <= 0 && !isDead)
         {
             isDead = true;
-            Destroy(ActiveWeapon.Instance.gameObject);
+            if (ActiveWeapon.Instance != null) ActiveWeapon.Instance.gameObject.SetActive(false);
             currentHealth = 0;
             GetComponent<Animator>().SetTrigger(DEATH_HASH);
-            StartCoroutine(DeathLoadSceneRoutine());
+            StartCoroutine(RespawnRoutine());
         }
     }
-    private IEnumerator DeathLoadSceneRoutine()
+    private IEnumerator RespawnRoutine()
     {
-        yield return new WaitForSeconds(2f);
+        // Ẩn player
+        GetComponent<SpriteRenderer>().enabled = false;
+        GetComponent<Collider2D>().enabled = false;
 
-        Destroy(gameObject);
+        // Dừng mọi hiệu ứng/coroutine còn lại
+        if (flash != null)
+        {
+            flash.ResetFlash(); // Thêm hàm này trong Flash.cs để reset alpha về bình thường
+        }
+        if (knockBack != null)
+        {
+            knockBack.StopKnockBack(); // Nếu có trạng thái knockback, hãy reset ở đây
+        }
 
-        // Đăng ký event trước khi load
-        SceneManager.sceneLoaded += OnSceneLoadedAfterDeath;
+        yield return new WaitForSeconds(2f); // thời gian "chết"
 
-        SceneManager.LoadScene(TOWN_TEXT);
-    }
-    private void OnSceneLoadedAfterDeath(Scene scene, LoadSceneMode mode)
-    {
+        // Đưa player về vị trí spawn ban đầu
+        transform.position = spawnPosition;
+
+        // Reset máu
+        currentHealth = maxHealth;
+        UpdateHealthSlider();
+
+        // Reset trạng thái
+        isDead = false;
+
+        // Hiện lại player
+        GetComponent<SpriteRenderer>().enabled = true;
+        GetComponent<Collider2D>().enabled = true;
+        // 🔑 Reset Animator về Idle
+        if (animator != null)
+        {
+            animator.ResetTrigger(DEATH_HASH);
+            animator.Play("Idle"); // đổi "Idle" thành đúng tên state idle trong Animator
+        }
+        // Bật lại vũ khí
+        if (ActiveWeapon.Instance != null)
+            ActiveWeapon.Instance.gameObject.SetActive(true);
+
+        // 🔑 Gọi WaveUI để hiện wave hiện tại
         WaveUI waveUI = FindFirstObjectByType<WaveUI>();
         if (waveUI != null)
         {
             waveUI.RefreshUI();
         }
-
-        // Hủy đăng ký để tránh chạy nhiều lần
-        SceneManager.sceneLoaded -= OnSceneLoadedAfterDeath;
     }
     private IEnumerator DamageRecoveryRoutine()
     {
