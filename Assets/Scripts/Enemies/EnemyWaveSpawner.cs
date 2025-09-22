@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 [System.Serializable]
 public class Wave
@@ -29,9 +30,18 @@ public class EnemyWaveSpawner : MonoBehaviour
 
     public int CurrentWaveIndex => currentWaveIndex;
     public int TotalWaves => waves.Count;
+    private bool allWavesCompleted = false;
+    public bool AllWavesCompleted => allWavesCompleted;
 
     private void Start()
     {
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (SceneManagement.Instance.IsSceneCleared(sceneName))
+        {
+            Debug.Log($"✅ Scene {sceneName} đã clear trước đó, không spawn quái nữa");
+            allWavesCompleted = true;
+            return;
+        }
         StartCoroutine(SpawnWaveRoutine());
     }
 
@@ -59,6 +69,9 @@ public class EnemyWaveSpawner : MonoBehaviour
         }
 
         Debug.Log("✅ All waves completed!");
+        allWavesCompleted = true;
+        string sceneName = SceneManager.GetActiveScene().name;
+        SceneManagement.Instance.MarkSceneCleared(sceneName); // 🔑 dùng SceneManagement
     }
 
     private void SpawnEnemy(Wave wave)

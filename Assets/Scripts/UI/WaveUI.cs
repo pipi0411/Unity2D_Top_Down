@@ -2,6 +2,7 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class WaveUI : MonoBehaviour
 {
@@ -26,6 +27,13 @@ public class WaveUI : MonoBehaviour
     }
     private void Start()
     {
+        // 🔑 Nếu scene đã clear => ẩn UI luôn
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (SceneManagement.Instance.IsSceneCleared(sceneName))
+        {
+            waveText.gameObject.SetActive(false);
+            return;
+        }
         RefreshUI(); // Thêm dòng này để khi scene load lại sẽ hiện wave hiện tại
     }
 
@@ -97,6 +105,12 @@ public class WaveUI : MonoBehaviour
     // ✅ Gọi khi Player hồi sinh để update wave hiện tại
     public void RefreshUI()
     {
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (SceneManagement.Instance.IsSceneCleared(sceneName))
+        {
+            waveText.gameObject.SetActive(false);
+            return;
+        }
         if (spawner == null) return;
 
         Wave currentWave = spawner.GetCurrentWave();
