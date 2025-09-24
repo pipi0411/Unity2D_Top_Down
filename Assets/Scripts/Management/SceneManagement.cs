@@ -1,3 +1,4 @@
+// SceneManagement.cs
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -24,5 +25,11 @@ public class SceneManagement : Singleton<SceneManagement>
     public bool IsSceneCleared(string sceneName)
     {
         return clearedScenes.Contains(sceneName);
+    }
+
+    // 🔑 Reset khi New Game
+    public void ResetClearedScenes()
+    {
+        clearedScenes.Clear();
     }
 }
