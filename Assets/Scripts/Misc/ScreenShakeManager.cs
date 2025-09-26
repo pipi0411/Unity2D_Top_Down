@@ -18,7 +18,7 @@ public class ScreenShakeManager : Singleton<ScreenShakeManager>
         {
             Debug.LogError("CinemachineImpulseSource component is missing on ScreenShakeManager.");
         }
-        DontDestroyOnLoad(gameObject);
+        // DontDestroyOnLoad(gameObject);
     }
 
     public void ShakeScreen()
