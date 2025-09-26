@@ -17,6 +17,8 @@ public class AreaExit : MonoBehaviour
 
     private void Start()
     {
+         Debug.Log($"[AreaExit] This object is in scene: {gameObject.scene.name}, " +
+          $"warningText={(warningText==null ? "NULL" : warningText.name)}");
         if (warningText != null)
         {
             canvasGroup = warningText.GetComponent<CanvasGroup>();

@@ -27,6 +27,8 @@ public class WaveUI : MonoBehaviour
     }
     private void Start()
     {
+        Debug.Log($"[WaveUI] scene: {SceneManager.GetActiveScene().name}, " +
+              $"waveText = {(waveText == null ? "NULL" : waveText.name)}");
         // 🔑 Nếu scene đã clear => ẩn UI luôn
         string sceneName = SceneManager.GetActiveScene().name;
         if (SceneManagement.Instance.IsSceneCleared(sceneName))
