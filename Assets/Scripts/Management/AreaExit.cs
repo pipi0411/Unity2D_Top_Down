@@ -7,18 +7,27 @@ public class AreaExit : MonoBehaviour
 {
     [SerializeField] private string sceneToLoad;
     [SerializeField] private string sceneTransitionName;
-    [SerializeField] private TMP_Text warningText; // Kéo text từ Canvas vào đây
+    [SerializeField] private TMP_Text warningText; 
     [SerializeField] private float fadeDuration = 0.5f;
     [SerializeField] private float displayTime = 2f;
 
     private CanvasGroup canvasGroup;
-
     private float waitToLoadTime = 1f;
 
     private void Start()
     {
-         Debug.Log($"[AreaExit] This object is in scene: {gameObject.scene.name}, " +
-          $"warningText={(warningText==null ? "NULL" : warningText.name)}");
+        if (warningText == null)
+        {
+            // tìm object có tên WarningText trong scene
+            GameObject obj = GameObject.Find("WarningText");
+            if (obj != null) warningText = obj.GetComponent<TMP_Text>();
+
+            if (warningText != null)
+                Debug.Log($"[AreaExit] Auto-assign warningText = {warningText.name}");
+            else
+                Debug.LogError("[AreaExit] Không tìm thấy warningText trong Scene!");
+        }
+
         if (warningText != null)
         {
             canvasGroup = warningText.GetComponent<CanvasGroup>();
@@ -48,12 +57,8 @@ public class AreaExit : MonoBehaviour
 
     private IEnumerator LoadSceneRoutine()
     {
-        float timer = waitToLoadTime;
-        while (timer > 0f)
-        {
-            timer -= Time.deltaTime;
-            yield return null;
-        }
+        SceneManagement.Instance.UnclearScene(sceneToLoad); // Reset trạng thái dọn sạch cảnh
+        yield return new WaitForSeconds(waitToLoadTime);
         SceneManager.LoadScene(sceneToLoad);
     }
 

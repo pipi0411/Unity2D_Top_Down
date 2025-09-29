@@ -1,4 +1,3 @@
-// SceneManagement.cs
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -31,5 +30,12 @@ public class SceneManagement : Singleton<SceneManagement>
     public void ResetClearedScenes()
     {
         clearedScenes.Clear();
+    }
+
+    // 🔑 Xóa trạng thái clear của 1 scene (nếu muốn replay)
+    public void UnclearScene(string sceneName)
+    {
+        if (clearedScenes.Contains(sceneName))
+            clearedScenes.Remove(sceneName);
     }
 }

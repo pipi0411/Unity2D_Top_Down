@@ -19,22 +19,23 @@ public class PlayerHealth : Singleton<PlayerHealth>
     readonly int DEATH_HASH = Animator.StringToHash("Death");
     private Vector3 spawnPosition;
     private Animator animator;
+
     protected override void Awake()
     {
         base.Awake();
         knockBack = GetComponent<KnockBack>();
         flash = GetComponent<Flash>();
         animator = GetComponent<Animator>();
-
     }
+
     private void Start()
     {
         isDead = false;
         currentHealth = maxHealth;
         spawnPosition = transform.position;
-
         UpdateHealthSlider();
     }
+
     private void OnCollisionStay2D(Collision2D other)
     {
         EnemyAI enemy = other.gameObject.GetComponent<EnemyAI>();
@@ -43,6 +44,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
             TakeDamage(1, other.transform);
         }
     }
+
     public void HealPlayer()
     {
         if (currentHealth < maxHealth)
@@ -51,6 +53,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
             UpdateHealthSlider();
         }
     }
+
     public void TakeDamage(int damageAmount, Transform hitTransform)
     {
         if (!canTakeDamage) return;
@@ -64,6 +67,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
         UpdateHealthSlider();
         CheckIfPlayerDeath();
     }
+
     private void CheckIfPlayerDeath()
     {
         if (currentHealth <= 0 && !isDead)
@@ -75,6 +79,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
             StartCoroutine(RespawnRoutine());
         }
     }
+
     private IEnumerator RespawnRoutine()
     {
         // Ẩn player
@@ -84,11 +89,11 @@ public class PlayerHealth : Singleton<PlayerHealth>
         // Dừng mọi hiệu ứng/coroutine còn lại
         if (flash != null)
         {
-            flash.ResetFlash(); // Thêm hàm này trong Flash.cs để reset alpha về bình thường
+            flash.ResetFlash();
         }
         if (knockBack != null)
         {
-            knockBack.StopKnockBack(); // Nếu có trạng thái knockback, hãy reset ở đây
+            knockBack.StopKnockBack();
         }
 
         yield return new WaitForSeconds(2f); // thời gian "chết"
@@ -102,16 +107,19 @@ public class PlayerHealth : Singleton<PlayerHealth>
 
         // Reset trạng thái
         isDead = false;
+        canTakeDamage = true; // 🔑 FIX: reset luôn để không bị delay vũ khí
 
         // Hiện lại player
         GetComponent<SpriteRenderer>().enabled = true;
         GetComponent<Collider2D>().enabled = true;
+
         // 🔑 Reset Animator về Idle
         if (animator != null)
         {
             animator.ResetTrigger(DEATH_HASH);
             animator.Play("Idle"); // đổi "Idle" thành đúng tên state idle trong Animator
         }
+
         // Bật lại vũ khí
         if (ActiveWeapon.Instance != null)
             ActiveWeapon.Instance.gameObject.SetActive(true);
@@ -123,11 +131,13 @@ public class PlayerHealth : Singleton<PlayerHealth>
             waveUI.RefreshUI();
         }
     }
+
     private IEnumerator DamageRecoveryRoutine()
     {
         yield return new WaitForSeconds(damageRecoveryTime);
         canTakeDamage = true;
     }
+
     private void UpdateHealthSlider()
     {
         if (healthSlider == null)
@@ -138,5 +148,4 @@ public class PlayerHealth : Singleton<PlayerHealth>
         healthSlider.maxValue = maxHealth;
         healthSlider.value = currentHealth;
     }
-
 }

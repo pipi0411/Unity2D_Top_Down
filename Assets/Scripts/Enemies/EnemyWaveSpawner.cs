@@ -1,4 +1,3 @@
-// Scripts/EnemyWaveSpawner.cs
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,12 +35,16 @@ public class EnemyWaveSpawner : MonoBehaviour
     private void Start()
     {
         string sceneName = SceneManager.GetActiveScene().name;
+
+        // 🔑 Nếu scene đã clear → không spawn lại quái nữa
         if (SceneManagement.Instance.IsSceneCleared(sceneName))
         {
-            Debug.Log($"✅ Scene {sceneName} đã clear trước đó, không spawn quái nữa");
+            Debug.Log($"✅ Scene {sceneName} đã clear → không spawn quái nữa");
             allWavesCompleted = true;
             return;
         }
+
+        Debug.Log($"[Spawner] Scene {sceneName} chưa clear → bắt đầu spawn waves");
         StartCoroutine(SpawnWaveRoutine());
     }
 
@@ -50,7 +53,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         while (currentWaveIndex < waves.Count)
         {
             Wave wave = waves[currentWaveIndex];
-
+            Debug.Log($"[Spawner] Bắt đầu wave {currentWaveIndex + 1}, enemyCount = {wave.enemyCount}, isBoss = {wave.isBossWave}");
             // Gửi event cho UI
             OnWaveStarted?.Invoke(currentWaveIndex + 1, waves.Count, wave.waveColor, wave.isBossWave);
 
@@ -70,8 +73,9 @@ public class EnemyWaveSpawner : MonoBehaviour
 
         Debug.Log("✅ All waves completed!");
         allWavesCompleted = true;
+
         string sceneName = SceneManager.GetActiveScene().name;
-        SceneManagement.Instance.MarkSceneCleared(sceneName); // 🔑 dùng SceneManagement
+        SceneManagement.Instance.MarkSceneCleared(sceneName); // 🔑 đánh dấu scene đã clear
     }
 
     private void SpawnEnemy(Wave wave)
