@@ -2,10 +2,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using TMPro;
+using UnityEditor;
 
 public class AreaExit : MonoBehaviour
 {
-    [SerializeField] private string sceneToLoad;
+    [SerializeField] private SceneAsset nextScene;
     [SerializeField] private string sceneTransitionName;
     [SerializeField] private TMP_Text warningText; 
     [SerializeField] private float fadeDuration = 0.5f;
@@ -57,9 +58,10 @@ public class AreaExit : MonoBehaviour
 
     private IEnumerator LoadSceneRoutine()
     {
-        SceneManagement.Instance.UnclearScene(sceneToLoad); // Reset trạng thái dọn sạch cảnh
         yield return new WaitForSeconds(waitToLoadTime);
-        SceneManager.LoadScene(sceneToLoad);
+        SceneManager.LoadScene(nextScene.name, LoadSceneMode.Single);
+        SceneManagement.Instance.CurrentSceneName = nextScene.name;
+        EnemyWaveSpawner.Instance.LoadSceneWave();
     }
 
     private void ShowWarning(string message)

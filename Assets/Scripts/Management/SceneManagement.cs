@@ -6,6 +6,8 @@ public class SceneManagement : Singleton<SceneManagement>
     private string sceneTransitionName;
     private HashSet<string> clearedScenes = new HashSet<string>();
 
+    public string CurrentSceneName { get; set; }
+
     public string SceneTransitionName => sceneTransitionName;
 
     public void SetTransitionName(string sceneTransitionName)
@@ -24,6 +26,11 @@ public class SceneManagement : Singleton<SceneManagement>
     public bool IsSceneCleared(string sceneName)
     {
         return clearedScenes.Contains(sceneName);
+    }
+
+    public bool IsCurrentSceneCleared()
+    {
+        return IsSceneCleared(CurrentSceneName);
     }
 
     // 🔑 Reset khi New Game

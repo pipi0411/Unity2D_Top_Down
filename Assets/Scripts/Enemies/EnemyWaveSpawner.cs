@@ -2,25 +2,24 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
-[System.Serializable]
-public class Wave
+
+public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
 {
-    public string waveName;
-    public List<GameObject> enemyPrefabs;
-    public int enemyCount = 5;
-    public float spawnDelay = 1f;
+    [System.Serializable]
+    class SceneWave
+    {
+        public SceneAsset scene;
+        public List<Wave> waves;
+        public string SceneName => scene != null ? scene.name : "NULL";
+    }
 
-    [Header("UI Settings")]
-    public Color waveColor = Color.white;
-    public bool isBossWave = false;
-}
-
-public class EnemyWaveSpawner : MonoBehaviour
-{
-    [SerializeField] private List<Wave> waves;
+    [SerializeField] private List<SceneWave> sceneWaves;
+    private List<Wave> waves;
     [SerializeField] private float timeBetweenWaves = 5f;
 
+    private int currentLevelIndex = 0;
     private int currentWaveIndex = 0;
     private int enemiesAlive = 0;
 
@@ -32,19 +31,27 @@ public class EnemyWaveSpawner : MonoBehaviour
     private bool allWavesCompleted = false;
     public bool AllWavesCompleted => allWavesCompleted;
 
-    private void Start()
+    void Start()
     {
-        string sceneName = SceneManager.GetActiveScene().name;
-
-        // 🔑 Nếu scene đã clear → không spawn lại quái nữa
-        if (SceneManagement.Instance.IsSceneCleared(sceneName))
+        if (sceneWaves.Count > 0)
         {
-            Debug.Log($"✅ Scene {sceneName} đã clear → không spawn quái nữa");
+            waves = sceneWaves[currentLevelIndex].waves;
+        }
+        SpawnLevelWaves();
+    }
+
+    private void SpawnLevelWaves()
+    {
+        // 🔑 Nếu scene đã clear → không spawn lại quái nữa
+        if (SceneManagement.Instance.IsCurrentSceneCleared())
+        {
             allWavesCompleted = true;
             return;
         }
-
-        Debug.Log($"[Spawner] Scene {sceneName} chưa clear → bắt đầu spawn waves");
+        else
+        {
+            allWavesCompleted = false;
+        }
         StartCoroutine(SpawnWaveRoutine());
     }
 
@@ -53,9 +60,9 @@ public class EnemyWaveSpawner : MonoBehaviour
         while (currentWaveIndex < waves.Count)
         {
             Wave wave = waves[currentWaveIndex];
-            Debug.Log($"[Spawner] Bắt đầu wave {currentWaveIndex + 1}, enemyCount = {wave.enemyCount}, isBoss = {wave.isBossWave}");
             // Gửi event cho UI
             OnWaveStarted?.Invoke(currentWaveIndex + 1, waves.Count, wave.waveColor, wave.isBossWave);
+            yield return new WaitForSeconds(2f); // đợi UI hiện xong
 
             for (int i = 0; i < wave.enemyCount; i++)
             {
@@ -85,8 +92,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         GameObject prefab = wave.enemyPrefabs[Random.Range(0, wave.enemyPrefabs.Count)];
         GameObject enemy = Instantiate(prefab, GetSpawnPosition(), Quaternion.identity);
 
-        EnemyHealth health = enemy.GetComponent<EnemyHealth>();
-        if (health != null)
+        if (enemy.TryGetComponent<EnemyHealth>(out var health))
         {
             enemiesAlive++;
             health.OnEnemyDied += HandleEnemyDeath;
@@ -110,5 +116,29 @@ public class EnemyWaveSpawner : MonoBehaviour
         if (currentWaveIndex < waves.Count)
             return waves[currentWaveIndex];
         return null;
+    }
+
+    // Load waves cho scene hiện tại
+    public void LoadSceneWave(string sceneName = null)
+    {
+        if (string.IsNullOrEmpty(sceneName))
+        {
+            sceneName = SceneManagement.Instance.CurrentSceneName;
+        }
+
+        int index = sceneWaves.FindIndex(sw => sw.SceneName == sceneName);
+        if (index != -1)
+        {
+            currentLevelIndex = index;
+            waves = sceneWaves[currentLevelIndex].waves;
+            currentWaveIndex = 0;
+            enemiesAlive = 0;
+            allWavesCompleted = false;
+            SpawnLevelWaves();
+        }
+        else
+        {
+            Debug.LogWarning($"[EnemyWaveSpawner] Không tìm thấy waves cho scene {sceneName}!");
+        }
     }
 }

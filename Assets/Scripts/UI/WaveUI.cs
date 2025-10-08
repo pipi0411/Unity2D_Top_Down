@@ -54,7 +54,7 @@ public class WaveUI : MonoBehaviour
             Debug.Log($"[WaveUI] Auto-assign spawner = {(spawner != null ? spawner.name : "NULL")}");
         }
 
-        string sceneName = SceneManager.GetActiveScene().name;
+        string sceneName = SceneManagement.Instance.CurrentSceneName;
         bool cleared = SceneManagement.Instance != null && SceneManagement.Instance.IsSceneCleared(sceneName);
         Debug.Log($"[WaveUI] Kiểm tra scene {sceneName}, cleared = {cleared}");
 
