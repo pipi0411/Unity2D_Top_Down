@@ -1,22 +1,10 @@
 fileFormatVersion: 2
-guid: 49f9b82e615bfec46987b14a4697add4
+guid: c0c3c5549c8f92b4f9f0855940f41025
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2889862456992538287
-    second: laser_Start_0
-  - first:
-      213: 1416576705719079064
-    second: laser_Start_1
-  - first:
-      213: -5788623473751719740
-    second: laser_Start_2
-  - first:
-      213: 346789890114288470
-    second: laser_Start_3
-  - first:
-      213: 2572196243590325621
-    second: laser_Start_4
+      213: 7753032653382307974
+    second: Space6_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -138,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: laser_Start_0
+      name: Space6_0
       rect:
         serializedVersion: 2
-        x: 31
+        x: 0
         y: 0
-        width: 134
-        height: 64
+        width: 1536
+        height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -153,96 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fae17cee79ada1820800000000000000
-      internalID: 2889862456992538287
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: laser_Start_1
-      rect:
-        serializedVersion: 2
-        x: 219
-        y: 0
-        width: 11
-        height: 64
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8909a7d2201b8a310800000000000000
-      internalID: 1416576705719079064
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: laser_Start_2
-      rect:
-        serializedVersion: 2
-        x: 282
-        y: 0
-        width: 13
-        height: 64
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4c08a8cbe9daaafa0800000000000000
-      internalID: -5788623473751719740
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: laser_Start_3
-      rect:
-        serializedVersion: 2
-        x: 344
-        y: 0
-        width: 17
-        height: 64
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 65b75f3519b00d400800000000000000
-      internalID: 346789890114288470
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: laser_Start_4
-      rect:
-        serializedVersion: 2
-        x: 405
-        y: 0
-        width: 23
-        height: 64
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 575abcffad642b320800000000000000
-      internalID: 2572196243590325621
+      spriteID: 6805bd4fe1e489b60800000000000000
+      internalID: 7753032653382307974
       vertices: []
       indices: 
       edges: []
@@ -261,11 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      laser_Start_0: 2889862456992538287
-      laser_Start_1: 1416576705719079064
-      laser_Start_2: -5788623473751719740
-      laser_Start_3: 346789890114288470
-      laser_Start_4: 2572196243590325621
+      Space6_0: 7753032653382307974
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
