@@ -23,4 +23,10 @@ public class KnockBack : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         GettingKnockedBack = false;
     }
+    public void StopKnockBack()
+    {
+        StopAllCoroutines();
+        rb.linearVelocity = Vector2.zero;
+        GettingKnockedBack = false;
+    }
 }

@@ -174,11 +174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fffd2696aa74924dbd26d96135d9f70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roamChangeDirFloat: 2
-  attackRange: 5
+  enemyData: {fileID: 11400000, guid: ea79467300985db4fb89769b76a11a0f, type: 2}
   enemyType: {fileID: 1858342447999466880}
-  attackCooldown: 2
-  stopMovingWhileAttacking: 0
 --- !u!114 &4855388467695628070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,7 +188,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11b7059a82504b44991da49466d2b919, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  enemyData: {fileID: 11400000, guid: ea79467300985db4fb89769b76a11a0f, type: 2}
 --- !u!95 &7691067336279995124
 Animator:
   serializedVersion: 7
@@ -226,9 +223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f8a283c0c27ebd4e9ed1145f9f2e841, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingHealth: 3
-  deathVFXPrefab: {fileID: 604905392258511773, guid: f7c7c924630010f47ba66560d40147d2, type: 3}
-  knockBackThrust: 15
+  enemyData: {fileID: 11400000, guid: ea79467300985db4fb89769b76a11a0f, type: 2}
 --- !u!114 &2804917984815318960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,8 +249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07b57310684a76b42a9fe9ce78ada62b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whileFlashMat: {fileID: 2100000, guid: b1163cc7e63782545a105996281c9059, type: 2}
-  restoreDefaultMatTime: 0.2
+  enemyData: {fileID: 11400000, guid: ea79467300985db4fb89769b76a11a0f, type: 2}
 --- !u!114 &207172656187390341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -268,12 +262,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfbd68517ccfaa944952c9864a185095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goldCoin: {fileID: 4253479202917515168, guid: b0ed77fa32a703d4cb7a6be7e597b5dc, type: 3}
-  healthGlobe: {fileID: 4253479202917515168, guid: 3a94f1acb198a0e4c8afa9a6dac685e9, type: 3}
-  staminaGlobe: {fileID: 4253479202917515168, guid: 705abcdc2d488f3408172b99a2e16d27, type: 3}
-  maxGoldCoins: 7
-  maxHealthGlobes: 2
-  maxStaminaGlobes: 2
 --- !u!114 &1858342447999466880
 MonoBehaviour:
   m_ObjectHideFlags: 0

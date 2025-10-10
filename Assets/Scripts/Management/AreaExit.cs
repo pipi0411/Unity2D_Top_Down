@@ -1,28 +1,95 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using TMPro;
+using UnityEditor;
 
 public class AreaExit : MonoBehaviour
 {
-    [SerializeField] private string sceneToLoad;
+    [SerializeField] private SceneAsset nextScene;
     [SerializeField] private string sceneTransitionName;
+    [SerializeField] private TMP_Text warningText; 
+    [SerializeField] private float fadeDuration = 0.5f;
+    [SerializeField] private float displayTime = 2f;
+
+    private CanvasGroup canvasGroup;
     private float waitToLoadTime = 1f;
-    private void OnTriggerEnter2D(Collider2D collision)
+
+    private void Start()
     {
-        if (collision.gameObject.GetComponent<PlayerController>() != null)
+        if (warningText == null)
         {
-            SceneManagement.Instance.SetTransitionName(sceneTransitionName);
-            UIFade.Instance.FadeToBlack();
-            StartCoroutine(LoadSceneRoutine());
+            // tìm object có tên WarningText trong scene
+            GameObject obj = GameObject.Find("WarningText");
+            if (obj != null) warningText = obj.GetComponent<TMP_Text>();
+
+            if (warningText != null)
+                Debug.Log($"[AreaExit] Auto-assign warningText = {warningText.name}");
+            else
+                Debug.LogError("[AreaExit] Không tìm thấy warningText trong Scene!");
+        }
+
+        if (warningText != null)
+        {
+            canvasGroup = warningText.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = warningText.gameObject.AddComponent<CanvasGroup>();
+
+            canvasGroup.alpha = 0f;
+            warningText.gameObject.SetActive(true);
         }
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.GetComponent<PlayerController>() == null) return;
+
+        EnemyWaveSpawner spawner = FindFirstObjectByType<EnemyWaveSpawner>();
+        if (spawner != null && !spawner.AllWavesCompleted)
+        {
+            ShowWarning("Clear all waves to proceed!");
+            return;
+        }
+
+        SceneManagement.Instance.SetTransitionName(sceneTransitionName);
+        UIFade.Instance.FadeToBlack();
+        StartCoroutine(LoadSceneRoutine());
+    }
+
     private IEnumerator LoadSceneRoutine()
     {
-        while (waitToLoadTime >= 0)
+        yield return new WaitForSeconds(waitToLoadTime);
+        SceneManager.LoadScene(nextScene.name, LoadSceneMode.Single);
+        SceneManagement.Instance.CurrentSceneName = nextScene.name;
+        EnemyWaveSpawner.Instance.LoadSceneWave();
+    }
+
+    private void ShowWarning(string message)
+    {
+        if (warningText == null) return;
+
+        warningText.text = message;
+        StopAllCoroutines();
+        StartCoroutine(WarningRoutine());
+    }
+
+    private IEnumerator WarningRoutine()
+    {
+        yield return StartCoroutine(FadeCanvasGroup(0f, 1f, fadeDuration));
+        yield return new WaitForSeconds(displayTime);
+        yield return StartCoroutine(FadeCanvasGroup(1f, 0f, fadeDuration));
+    }
+
+    private IEnumerator FadeCanvasGroup(float from, float to, float duration)
+    {
+        float elapsed = 0f;
+        canvasGroup.alpha = from;
+        while (elapsed < duration)
         {
-            waitToLoadTime -= Time.deltaTime;
+            elapsed += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / duration);
             yield return null;
         }
-        SceneManager.LoadScene(sceneToLoad);
+        canvasGroup.alpha = to;
     }
 }

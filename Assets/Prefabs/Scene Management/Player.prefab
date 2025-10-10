@@ -583,8 +583,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07b57310684a76b42a9fe9ce78ada62b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whileFlashMat: {fileID: 2100000, guid: 01b78e552a2d6024dadd0f8aa1d90e97, type: 2}
-  restoreDefaultMatTime: 0.2
+  enemyData: {fileID: 11400000, guid: d2b536cd598968548b75f31e9d6c8827, type: 2}
 --- !u!114 &2793986373593385495
 MonoBehaviour:
   m_ObjectHideFlags: 0
