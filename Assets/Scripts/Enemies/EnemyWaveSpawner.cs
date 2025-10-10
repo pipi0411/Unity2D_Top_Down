@@ -78,7 +78,7 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
             currentWaveIndex++;
         }
 
-        Debug.Log("✅ All waves completed!");
+        Debug.Log("All waves completed!");
         allWavesCompleted = true;
 
         string sceneName = SceneManager.GetActiveScene().name;
@@ -89,7 +89,7 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
     {
         if (wave.enemyPrefabs.Count == 0) return;
 
-        GameObject prefab = wave.enemyPrefabs[Random.Range(0, wave.enemyPrefabs.Count)];
+        GameObject prefab = wave.enemyPrefabs[UnityEngine.Random.Range(0, wave.enemyPrefabs.Count)];
         GameObject enemy = Instantiate(prefab, GetSpawnPosition(), Quaternion.identity);
 
         if (enemy.TryGetComponent<EnemyHealth>(out var health))
@@ -106,7 +106,7 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
 
     private Vector3 GetSpawnPosition()
     {
-        Vector2 offset = Random.insideUnitCircle * 2f;
+        Vector2 offset = UnityEngine.Random.insideUnitCircle * 2f;
         return transform.position + new Vector3(offset.x, offset.y, 0);
     }
 
@@ -135,10 +135,6 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
             enemiesAlive = 0;
             allWavesCompleted = false;
             SpawnLevelWaves();
-        }
-        else
-        {
-            Debug.LogWarning($"[EnemyWaveSpawner] Không tìm thấy waves cho scene {sceneName}!");
         }
     }
 }

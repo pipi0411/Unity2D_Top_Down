@@ -17897,7 +17897,6 @@ MonoBehaviour:
   - scene: {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
     waves:
     - {fileID: 11400000, guid: daa6dcfd70420b343a66b0459acdf901, type: 2}
-    - {fileID: 11400000, guid: 834369c08e0ab1647974db3af2e95be2, type: 2}
   - scene: {fileID: 102900000, guid: d459fb801fb41c84296ed4c93d1d5f64, type: 3}
     waves:
     - {fileID: 11400000, guid: 834369c08e0ab1647974db3af2e95be2, type: 2}
@@ -18665,11 +18664,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8390635866133152179, guid: c8e19aacb9231f04c9491576d52393bc, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.315273
+      value: -5.3090796
       objectReference: {fileID: 0}
     - target: {fileID: 8390635866133152179, guid: c8e19aacb9231f04c9491576d52393bc, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.1100699
+      value: 1.1100799
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

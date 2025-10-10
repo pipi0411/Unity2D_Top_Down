@@ -17,13 +17,10 @@ public class WaveUI : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log($"[WaveUI] Awake() in scene {gameObject.scene.name}, object = {gameObject.name}");
-
         // Auto-assign waveText nếu quên kéo Inspector
         if (waveText == null)
         {
             waveText = GetComponentInChildren<TMP_Text>();
-            Debug.LogWarning($"[WaveUI] Auto-assign waveText = {(waveText != null ? waveText.name : "NULL")}");
         }
 
         if (waveText != null)
@@ -39,24 +36,20 @@ public class WaveUI : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log($"[WaveUI] Start() in scene: {SceneManager.GetActiveScene().name}");
         StartCoroutine(InitDelayed());
     }
 
     private IEnumerator InitDelayed()
     {
-        Debug.Log("[WaveUI] InitDelayed() bắt đầu chờ spawner...");
         yield return new WaitUntil(() => FindFirstObjectByType<EnemyWaveSpawner>() != null);
 
         if (spawner == null)
         {
             spawner = FindFirstObjectByType<EnemyWaveSpawner>();
-            Debug.Log($"[WaveUI] Auto-assign spawner = {(spawner != null ? spawner.name : "NULL")}");
         }
 
         string sceneName = SceneManagement.Instance.CurrentSceneName;
         bool cleared = SceneManagement.Instance != null && SceneManagement.Instance.IsSceneCleared(sceneName);
-        Debug.Log($"[WaveUI] Kiểm tra scene {sceneName}, cleared = {cleared}");
 
         // Nếu scene đã clear → hiện thông báo thay vì ẩn hoàn toàn
         if (cleared)
@@ -64,7 +57,7 @@ public class WaveUI : MonoBehaviour
             if (waveText != null)
             {
                 waveText.gameObject.SetActive(true);
-                waveText.text = "✅ All waves cleared!";
+                waveText.text = "All waves cleared!";
                 waveText.color = Color.green;
                 canvasGroup.alpha = 1f;
             }
@@ -76,11 +69,6 @@ public class WaveUI : MonoBehaviour
         {
             spawner.OnWaveStarted -= ShowWaveText; // tránh đăng ký trùng
             spawner.OnWaveStarted += ShowWaveText;
-            Debug.Log("[WaveUI] Đã đăng ký OnWaveStarted event với spawner.");
-        }
-        else
-        {
-            Debug.LogError("[WaveUI] InitDelayed() vẫn không tìm thấy spawner!");
         }
         RefreshUI();
     }
@@ -90,7 +78,6 @@ public class WaveUI : MonoBehaviour
         if (spawner != null)
         {
             spawner.OnWaveStarted += ShowWaveText;
-            Debug.Log("[WaveUI] OnEnable: Đã đăng ký OnWaveStarted.");
         }
     }
 
@@ -99,13 +86,11 @@ public class WaveUI : MonoBehaviour
         if (spawner != null)
         {
             spawner.OnWaveStarted -= ShowWaveText;
-            Debug.Log("[WaveUI] OnDisable: Hủy đăng ký OnWaveStarted.");
         }
     }
 
     private void ShowWaveText(int currentWave, int totalWaves, Color color, bool isBoss)
     {
-        Debug.Log($"[WaveUI] ShowWaveText() → Wave {currentWave}/{totalWaves}, Boss = {isBoss}");
 
         if (waveText == null) return;
 
@@ -165,7 +150,6 @@ public class WaveUI : MonoBehaviour
     {
         string sceneName = SceneManager.GetActiveScene().name;
         bool cleared = SceneManagement.Instance != null && SceneManagement.Instance.IsSceneCleared(sceneName);
-        Debug.Log($"[WaveUI] RefreshUI() gọi trong scene {sceneName}, cleared = {cleared}");
 
         if (cleared)
         {
@@ -183,11 +167,9 @@ public class WaveUI : MonoBehaviour
         if (spawner == null)
         {
             spawner = FindFirstObjectByType<EnemyWaveSpawner>();
-            Debug.Log($"[WaveUI] RefreshUI() auto-assign lại spawner = {(spawner != null ? spawner.name : "NULL")}");
 
             if (spawner == null)
             {
-                Debug.LogWarning("[WaveUI] RefreshUI() vẫn không tìm thấy spawner!");
                 return;
             }
         }
@@ -195,11 +177,8 @@ public class WaveUI : MonoBehaviour
         Wave currentWave = spawner.GetCurrentWave();
         if (currentWave == null)
         {
-            Debug.LogWarning("[WaveUI] RefreshUI() gọi nhưng currentWave NULL!");
             return;
         }
-
-        Debug.Log($"[WaveUI] RefreshUI() hiển thị wave {spawner.CurrentWaveIndex + 1}/{spawner.TotalWaves}");
         ShowWaveText(spawner.CurrentWaveIndex + 1,
                      spawner.TotalWaves,
                      currentWave.waveColor,

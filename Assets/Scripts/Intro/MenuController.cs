@@ -6,7 +6,7 @@ public class MenuController : MonoBehaviour
     public void StartGame()
     {
         // Chuyển sang Scene chơi chính
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("IntroScene");
     }
 
     public void ExitGame()

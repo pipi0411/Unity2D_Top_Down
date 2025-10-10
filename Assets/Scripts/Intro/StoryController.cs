@@ -42,8 +42,10 @@ public class StoryController : MonoBehaviour
         }
     }
 
+    [ContextMenu("NextPage")]
     public void NextPage()
     {
+        // Debug.Log("NextPage");
         if (currentPage < pages.Length - 1)
         {
             currentPage++;
@@ -52,9 +54,7 @@ public class StoryController : MonoBehaviour
         }
         else
         {
-            Debug.Log("Hết truyện!");
-            // Ví dụ load sang scene khác:
-            // UnityEngine.SceneManagement.SceneManager.LoadScene("MainScene");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Scene1");
         }
     }
 
