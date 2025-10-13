@@ -3,18 +3,19 @@ using UnityEngine;
 public class BossController : MonoBehaviour
 {
     public float moveSpeed = 2f;
-    public int health = 100;
     public Transform player;
     public Transform attackArea;
     private Animator animator;
     private bool facingRight = true;
-    private bool isAttacking = false; // Theo dõi trạng thái tấn công
-    private float attackCooldown = 2f; // Thời gian chờ trước khi tấn công lại
+    private bool isAttacking = false;
+    private float attackCooldown = 2f;
     private float lastAttackTime;
+    private BossHealthManager healthManager;
 
     void Start()
     {
         animator = GetComponent<Animator>();
+        healthManager = GetComponent<BossHealthManager>();
     }
 
     void Update()
@@ -23,8 +24,7 @@ public class BossController : MonoBehaviour
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // Kiểm tra di chuyển
-        if (!isAttacking && distanceToPlayer > 2f) // Chỉ di chuyển nếu không tấn công và cách xa
+        if (!isAttacking && distanceToPlayer > 2f)
         {
             MoveTowardsPlayer();
         }
@@ -33,17 +33,15 @@ public class BossController : MonoBehaviour
             StartAttack();
         }
 
-        // Kiểm tra ngắt tấn công nếu người chơi chạy
         if (isAttacking && distanceToPlayer > 3f)
         {
             InterruptAttack();
         }
 
-        // Kiểm tra HP
-        if (health <= 0)
+        // Thêm logic dịch chuyển ở Phase 2
+        if (healthManager.isPhase2 && healthManager.CanTeleport() && Random.value < 0.1f) // 10% cơ hội dịch chuyển mỗi frame
         {
-            animator.SetTrigger("Die");
-            Destroy(gameObject, 2f);
+            healthManager.TeleportToPlayer(player);
         }
     }
 
@@ -76,8 +74,8 @@ public class BossController : MonoBehaviour
     {
         isAttacking = true;
         animator.SetBool("isAttacking", true);
-        animator.SetBool("isMoving", false); // Ngừng di chuyển khi tấn công
-        animator.SetTrigger("Attack"); // Kích hoạt animation Attack
+        animator.SetBool("isMoving", false);
+        animator.SetTrigger("Attack");
         lastAttackTime = Time.time;
     }
 
@@ -85,20 +83,21 @@ public class BossController : MonoBehaviour
     {
         isAttacking = false;
         animator.SetBool("isAttacking", false);
-        animator.SetTrigger("interruptAttack"); // Ngắt và chuyển sang Run
+        animator.SetTrigger("interruptAttack");
     }
 
-    public void TakeDamage(int damage)
+    public void DealDamageToBoss(int damage)
     {
-        health -= damage;
-        animator.SetTrigger("Hurt");
+        if (healthManager != null)
+        {
+            healthManager.TakeDamage(damage);
+        }
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player") && attackArea.gameObject.activeSelf)
         {
-            // Logic gây sát thương 
             Debug.Log("Player hit by attack!");
         }
     }
@@ -111,7 +110,7 @@ public class BossController : MonoBehaviour
     public void DeactivateAttackArea()
     {
         attackArea.gameObject.SetActive(false);
-        isAttacking = false; // Kết thúc tấn công
+        isAttacking = false;
         animator.SetBool("isAttacking", false);
     }
 }
