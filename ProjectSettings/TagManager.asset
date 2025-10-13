@@ -53,10 +53,7 @@ TagManager:
   - name: Player
     uniqueID: 1541842355
     locked: 0
-  - name: Canopy
-    uniqueID: 3242466795
-    locked: 0
-  - name: Shadows
+  - name: Plants
     uniqueID: 4080703007
     locked: 0
   m_RenderingLayers:
