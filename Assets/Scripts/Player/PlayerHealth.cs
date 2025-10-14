@@ -19,6 +19,10 @@ public class PlayerHealth : Singleton<PlayerHealth>
     readonly int DEATH_HASH = Animator.StringToHash("Death");
     private Vector3 spawnPosition;
     private Animator animator;
+    private SpriteRenderer spriteRenderer;
+    private Collider2D bodyCollider;
+    private Rigidbody2D rb;
+    private GameObject cachedWeaponGO;
 
     protected override void Awake()
     {
@@ -26,6 +30,10 @@ public class PlayerHealth : Singleton<PlayerHealth>
         knockBack = GetComponent<KnockBack>();
         flash = GetComponent<Flash>();
         animator = GetComponent<Animator>();
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        bodyCollider = GetComponent<Collider2D>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Start()
@@ -73,9 +81,21 @@ public class PlayerHealth : Singleton<PlayerHealth>
         if (currentHealth <= 0 && !isDead)
         {
             isDead = true;
-            if (ActiveWeapon.Instance != null) ActiveWeapon.Instance.gameObject.SetActive(false);
+            if (ActiveWeapon.Instance != null)
+            {
+                cachedWeaponGO = ActiveWeapon.Instance.gameObject;
+                cachedWeaponGO.SetActive(false); // ẩn vũ khí khi chết
+            }
+            else if (cachedWeaponGO != null)
+            {
+                cachedWeaponGO.SetActive(false); // ẩn vũ khí khi chết
+            }
+
             currentHealth = 0;
-            GetComponent<Animator>().SetTrigger(DEATH_HASH);
+            if (animator != null)
+            {
+                animator.SetTrigger(DEATH_HASH);
+            }
             StartCoroutine(RespawnRoutine());
         }
     }
@@ -83,8 +103,8 @@ public class PlayerHealth : Singleton<PlayerHealth>
     private IEnumerator RespawnRoutine()
     {
         // Ẩn player
-        GetComponent<SpriteRenderer>().enabled = false;
-        GetComponent<Collider2D>().enabled = false;
+        if (spriteRenderer != null) spriteRenderer.enabled = false;
+        if (bodyCollider != null) bodyCollider.enabled = false;
 
         // Dừng mọi hiệu ứng/coroutine còn lại
         if (flash != null)
@@ -94,6 +114,10 @@ public class PlayerHealth : Singleton<PlayerHealth>
         if (knockBack != null)
         {
             knockBack.StopKnockBack();
+        }
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
         }
 
         yield return new WaitForSeconds(2f); // thời gian "chết"
@@ -110,19 +134,29 @@ public class PlayerHealth : Singleton<PlayerHealth>
         canTakeDamage = true; // 🔑 FIX: reset luôn để không bị delay vũ khí
 
         // Hiện lại player
-        GetComponent<SpriteRenderer>().enabled = true;
-        GetComponent<Collider2D>().enabled = true;
+        if (spriteRenderer != null) spriteRenderer.enabled = true;
+        if (bodyCollider != null) bodyCollider.enabled = true;
 
-        // 🔑 Reset Animator về Idle
+        // Reset Animator sạch trạng thái
         if (animator != null)
         {
             animator.ResetTrigger(DEATH_HASH);
-            animator.Play("Idle"); // đổi "Idle" thành đúng tên state idle trong Animator
+            animator.Rebind();
+            animator.Update(0f);
         }
 
         // Bật lại vũ khí
-        if (ActiveWeapon.Instance != null)
-            ActiveWeapon.Instance.gameObject.SetActive(true);
+        if (cachedWeaponGO != null)
+        {
+            cachedWeaponGO.SetActive(true);
+
+            var weaponAnim = cachedWeaponGO.GetComponent<Animator>();
+            if (weaponAnim != null)
+            {
+                weaponAnim.Rebind();
+                weaponAnim.Update(0f);
+            }
+        }
 
         // 🔑 Gọi WaveUI để hiện wave hiện tại
         WaveUI waveUI = FindFirstObjectByType<WaveUI>();

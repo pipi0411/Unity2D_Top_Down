@@ -41,20 +41,5 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Ground
-    uniqueID: 1325739011
-    locked: 0
-  - name: Walls
-    uniqueID: 2779882199
-    locked: 0
-  - name: Props
-    uniqueID: 692555653
-    locked: 0
-  - name: Player
-    uniqueID: 1541842355
-    locked: 0
-  - name: Plants
-    uniqueID: 4080703007
-    locked: 0
   m_RenderingLayers:
   - Default

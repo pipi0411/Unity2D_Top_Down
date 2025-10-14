@@ -357,14 +357,13 @@ GameObject:
   - component: {fileID: 352818402314073465}
   - component: {fileID: 5414165155014472165}
   - component: {fileID: 5482839121893919911}
-  - component: {fileID: 1274572927253617369}
   - component: {fileID: 8218041469574712574}
   - component: {fileID: 9170598681535303946}
   - component: {fileID: 2793986373593385495}
   - component: {fileID: 5398429843348752406}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -428,8 +427,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1541842355
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -75224854, guid: 478a100d121726e43b8030f7be703933, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -544,18 +543,6 @@ CapsuleCollider2D:
   m_Offset: {x: -0.03700965, y: -0.15464614}
   m_Size: {x: 0.59949803, y: 0.5801872}
   m_Direction: 1
---- !u!210 &1274572927253617369
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8074412699414772857}
-  m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_SortAtRoot: 0
 --- !u!114 &8218041469574712574
 MonoBehaviour:
   m_ObjectHideFlags: 0

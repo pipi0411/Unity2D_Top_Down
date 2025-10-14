@@ -4928,7 +4928,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8a4cb0a1a6054f46ac71622bfa3c3d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transitionName: EEntry
+  transitionName: BackToScene2_Left
 --- !u!4 &564326048 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1666660842858299353, guid: b5dc9ced1dd8a054d8e7f843ef7cd19a, type: 3}
@@ -4965,10 +4965,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nextScene: {fileID: 102900000, guid: e271ae1b63ede66458ce93c59e7d6446, type: 3}
-  sceneTransitionName: WEntry
+  nextSceneName: Boss
+  sceneTransitionName: ToBoss_Tru
   warningText: {fileID: 0}
   fadeDuration: 0.5
   displayTime: 2
+  requireWavesCleared: 0
+  requireSceneCleared: 0
 --- !u!61 &583307203
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6718,7 +6721,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8390635866133152179, guid: c8e19aacb9231f04c9491576d52393bc, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.307028
+      value: -5.3043222
       objectReference: {fileID: 0}
     - target: {fileID: 8390635866133152179, guid: c8e19aacb9231f04c9491576d52393bc, type: 3}
       propertyPath: m_LocalPosition.y
@@ -21766,8 +21769,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 481336419}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.01, y: 0}
+  m_AnchorMax: {x: 0.01, y: 1}
   m_AnchoredPosition: {x: 1.6761017, y: 0}
   m_SizeDelta: {x: 16.6477, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -21899,7 +21902,7 @@ RectTransform:
   m_Father: {fileID: 632768543}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.01, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -21991,6 +21994,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8074412699414772857, guid: 7c2f94e5652c1a6418f4bfa73050822d, type: 3}
       propertyPath: m_Name
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8074412699414772857, guid: 7c2f94e5652c1a6418f4bfa73050822d, type: 3}
+      propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 9170598681535303946, guid: 7c2f94e5652c1a6418f4bfa73050822d, type: 3}
@@ -22499,7 +22506,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &3860634326603519176
 Animator:
   serializedVersion: 7
@@ -22734,10 +22741,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nextScene: {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
+  nextSceneName: 
   sceneTransitionName: EEntry
   warningText: {fileID: 0}
   fadeDuration: 0.5
   displayTime: 2
+  requireWavesCleared: 1
+  requireSceneCleared: 0
 --- !u!1001 &6616952432192756861
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27746,3 +27756,5 @@ SceneRoots:
   - {fileID: 850070529}
   - {fileID: 1662057319}
   - {fileID: 8557287369952953952}
+  - {fileID: 583307204}
+  - {fileID: 2844519019773114532}

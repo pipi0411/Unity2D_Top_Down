@@ -95,7 +95,7 @@ public class WaveUI : MonoBehaviour
         if (waveText == null) return;
 
         waveText.text = isBoss
-            ? $"⚔️ Boss Wave {currentWave} / {totalWaves}"
+            ? $"Boss Wave {currentWave} / {totalWaves}"
             : $"Wave {currentWave} / {totalWaves}";
 
         waveText.color = color;
