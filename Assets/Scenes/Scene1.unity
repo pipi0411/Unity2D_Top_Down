@@ -155,6 +155,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmSource: {fileID: 0}
   defaultBgm: {fileID: 8300000, guid: 61b1924261fb76f4db18a8a5f3d01a62, type: 3}
+  bgmVolume: 0.5
+  playerSource: {fileID: 0}
+  playerSfxSource: {fileID: 0}
+  playerVolume: 1
+  itemSource: {fileID: 0}
+  itemVolume: 1
+  runClip: {fileID: 8300000, guid: 0af83efbb852e8744a5a28f8d8f8d846, type: 3}
+  deathClip: {fileID: 0}
+  dashClip: {fileID: 8300000, guid: 3cbe4384f16b56845b6802c4b4207fa5, type: 3}
+  runVolumeMultiplier: 0.53
+  runPitch: 1
+  dashVolumeMultiplier: 1.35
+  dashPitchRange: {x: 0.95, y: 1.05}
+  dashDuckPercent: 0.6
+  dashDuckTime: 0.15
+  weaponSoundSets:
+  - weaponName: Sword
+    attackClips:
+    - {fileID: 8300000, guid: 96017f659280ba74cb6e8c61930852f2, type: 3}
+  - weaponName: Bow
+    attackClips:
+    - {fileID: 8300000, guid: 8f80f19484a26f344a9a2743b34b5f7b, type: 3}
+  - weaponName: Staff
+    attackClips:
+    - {fileID: 8300000, guid: 8a76b4340a478ec4fa074e736e6dced8, type: 3}
 --- !u!4 &56092989
 Transform:
   m_ObjectHideFlags: 0
@@ -18285,11 +18310,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8390635866133152179, guid: c8e19aacb9231f04c9491576d52393bc, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.312552
+      value: -5.309079
       objectReference: {fileID: 0}
     - target: {fileID: 8390635866133152179, guid: c8e19aacb9231f04c9491576d52393bc, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.1100699
+      value: 1.1100799
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

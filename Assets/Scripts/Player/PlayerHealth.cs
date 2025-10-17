@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 public class PlayerHealth : Singleton<PlayerHealth>
 {
     public bool isDead { get; private set; }
+
+    [Header("Health Settings")]
     [SerializeField] private int maxHealth = 3;
     [SerializeField] private float knockBackThrustAmount = 10f;
     [SerializeField] private float damageRecoveryTime = 1f;
@@ -13,16 +15,18 @@ public class PlayerHealth : Singleton<PlayerHealth>
     private Slider healthSlider;
     private int currentHealth;
     private bool canTakeDamage = true;
+
     private KnockBack knockBack;
     private Flash flash;
-    const string HEALTH_SLIDER_TEXT = "Health Slider";
-    readonly int DEATH_HASH = Animator.StringToHash("Death");
-    private Vector3 spawnPosition;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private Collider2D bodyCollider;
     private Rigidbody2D rb;
     private GameObject cachedWeaponGO;
+    private Vector3 spawnPosition;
+
+    const string HEALTH_SLIDER_TEXT = "Health Slider";
+    readonly int DEATH_HASH = Animator.StringToHash("Death");
 
     protected override void Awake()
     {
@@ -30,7 +34,6 @@ public class PlayerHealth : Singleton<PlayerHealth>
         knockBack = GetComponent<KnockBack>();
         flash = GetComponent<Flash>();
         animator = GetComponent<Animator>();
-
         spriteRenderer = GetComponent<SpriteRenderer>();
         bodyCollider = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
@@ -64,15 +67,17 @@ public class PlayerHealth : Singleton<PlayerHealth>
 
     public void TakeDamage(int damageAmount, Transform hitTransform)
     {
-        if (!canTakeDamage) return;
+        if (!canTakeDamage || isDead) return;
 
         ScreenShakeManager.Instance.ShakeScreen();
         knockBack.GetKnockedBack(hitTransform, knockBackThrustAmount);
         StartCoroutine(flash.FlashRoutine());
+
         canTakeDamage = false;
         currentHealth -= damageAmount;
-        StartCoroutine(DamageRecoveryRoutine());
         UpdateHealthSlider();
+
+        StartCoroutine(DamageRecoveryRoutine());
         CheckIfPlayerDeath();
     }
 
@@ -81,21 +86,37 @@ public class PlayerHealth : Singleton<PlayerHealth>
         if (currentHealth <= 0 && !isDead)
         {
             isDead = true;
+            currentHealth = 0;
+
+            // 🔊 Dừng tiếng chạy (nếu đang chạy)
+            AudioManager.Instance?.StopPlayerRun();
+
+            // 🔊 Phát âm thanh chết
+            AudioManager.Instance?.PlayPlayerDeath();
+
+            // Ẩn vũ khí khi chết
             if (ActiveWeapon.Instance != null)
             {
                 cachedWeaponGO = ActiveWeapon.Instance.gameObject;
-                cachedWeaponGO.SetActive(false); // ẩn vũ khí khi chết
+                cachedWeaponGO.SetActive(false);
             }
             else if (cachedWeaponGO != null)
             {
-                cachedWeaponGO.SetActive(false); // ẩn vũ khí khi chết
+                cachedWeaponGO.SetActive(false);
             }
 
-            currentHealth = 0;
+            // Kích hoạt animation chết
             if (animator != null)
             {
                 animator.SetTrigger(DEATH_HASH);
             }
+
+            // Dừng di chuyển hoàn toàn
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
             StartCoroutine(RespawnRoutine());
         }
     }
@@ -106,21 +127,11 @@ public class PlayerHealth : Singleton<PlayerHealth>
         if (spriteRenderer != null) spriteRenderer.enabled = false;
         if (bodyCollider != null) bodyCollider.enabled = false;
 
-        // Dừng mọi hiệu ứng/coroutine còn lại
-        if (flash != null)
-        {
-            flash.ResetFlash();
-        }
-        if (knockBack != null)
-        {
-            knockBack.StopKnockBack();
-        }
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
+        // Dừng flash, knockback
+        if (flash != null) flash.ResetFlash();
+        if (knockBack != null) knockBack.StopKnockBack();
 
-        yield return new WaitForSeconds(2f); // thời gian "chết"
+        yield return new WaitForSeconds(2f); // Thời gian chờ "chết"
 
         // Đưa player về vị trí spawn ban đầu
         transform.position = spawnPosition;
@@ -131,7 +142,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
 
         // Reset trạng thái
         isDead = false;
-        canTakeDamage = true; // 🔑 FIX: reset luôn để không bị delay vũ khí
+        canTakeDamage = true;
 
         // Hiện lại player
         if (spriteRenderer != null) spriteRenderer.enabled = true;
@@ -149,7 +160,6 @@ public class PlayerHealth : Singleton<PlayerHealth>
         if (cachedWeaponGO != null)
         {
             cachedWeaponGO.SetActive(true);
-
             var weaponAnim = cachedWeaponGO.GetComponent<Animator>();
             if (weaponAnim != null)
             {
@@ -158,7 +168,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
             }
         }
 
-        // 🔑 Gọi WaveUI để hiện wave hiện tại
+        // Cập nhật lại UI wave
         WaveUI waveUI = FindFirstObjectByType<WaveUI>();
         if (waveUI != null)
         {
