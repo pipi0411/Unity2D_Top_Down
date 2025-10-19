@@ -15,8 +15,8 @@ MonoBehaviour:
   bgmList:
   - sceneName: MenuScene
     bgmClip: {fileID: 0}
-  - sceneName: IntroduceScene
-    bgmClip: {fileID: 0}
+  - sceneName: IntroScene
+    bgmClip: {fileID: 8300000, guid: 32968c85e75ee434481d6cc815fc86ab, type: 3}
   - sceneName: Scene1
     bgmClip: {fileID: 8300000, guid: 61b1924261fb76f4db18a8a5f3d01a62, type: 3}
   - sceneName: Scene2

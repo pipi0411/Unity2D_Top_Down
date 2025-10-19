@@ -78,4 +78,40 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
             weapon.Attack();
         }
     }
+
+    // ============================================================
+    // 🔹 BỔ SUNG: HỖ TRỢ SAVE/LOAD VŨ KHÍ
+    // ============================================================
+    public string CurrentWeaponName
+    {
+        get
+        {
+            if (CurrentActiveWeapon == null) return null;
+            var weapon = CurrentActiveWeapon as IWeapon;
+            return weapon?.GetWeaponInfo()?.weaponName;
+        }
+    }
+
+    public void EquipWeaponByName(string weaponName)
+    {
+        if (string.IsNullOrEmpty(weaponName)) return;
+
+        WeaponInfor weaponInfo = Resources.Load<WeaponInfor>($"Weapons/{weaponName}");
+        if (weaponInfo == null)
+        {
+            Debug.LogWarning($"[ActiveWeapon] Không tìm thấy WeaponInfor cho {weaponName}");
+            return;
+        }
+
+        GameObject weaponObj = Instantiate(weaponInfo.weaponPrefab);
+        IWeapon newWeapon = weaponObj.GetComponent<IWeapon>();
+        if (newWeapon == null)
+        {
+            Debug.LogError($"[ActiveWeapon] Prefab của {weaponName} không có script IWeapon!");
+            Destroy(weaponObj);
+            return;
+        }
+
+        NewWeapon(newWeapon as MonoBehaviour);
+    }
 }

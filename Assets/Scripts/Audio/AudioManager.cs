@@ -134,6 +134,16 @@ public class AudioManager : MonoBehaviour
 
         fadeRoutine = StartCoroutine(FadeToNewBgm(clip));
     }
+    public void PauseBGM()
+    {
+        if (bgmSource.isPlaying)
+            bgmSource.Pause();
+    }
+    public void ResumeBGM()
+    {
+        if (!bgmSource.isPlaying)
+            bgmSource.UnPause();
+    }
 
     private IEnumerator FadeToNewBgm(AudioClip newClip)
     {

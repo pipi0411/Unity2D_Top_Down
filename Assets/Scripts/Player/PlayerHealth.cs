@@ -27,6 +27,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
 
     const string HEALTH_SLIDER_TEXT = "Health Slider";
     readonly int DEATH_HASH = Animator.StringToHash("Death");
+    public int CurrentHealth => currentHealth;
 
     protected override void Awake()
     {
@@ -193,5 +194,10 @@ public class PlayerHealth : Singleton<PlayerHealth>
 
         healthSlider.maxValue = maxHealth;
         healthSlider.value = currentHealth;
+    }
+    public void SetHealth(int value)
+    {
+        currentHealth = Mathf.Clamp(value, 0, maxHealth);
+        UpdateHealthSlider();
     }
 }

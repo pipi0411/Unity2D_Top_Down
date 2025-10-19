@@ -20,8 +20,10 @@ public class PickUpSpawner : MonoBehaviour
         {
             int staminaAmount = Random.Range(1, enemyData.maxStaminaGlobes + 1);
             for (int i = 0; i < staminaAmount; i++)
+            {
                 Instantiate(enemyData.staminaGlobe, transform.position, Quaternion.identity);
                 AudioManager.Instance.PlayItemDrop();
+            }
         }
         else if (randomNum == 3)
         {

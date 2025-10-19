@@ -86,16 +86,20 @@ public class AreaExit : MonoBehaviour
             yield break;
         }
 
+        // ✅ Lưu game trước khi qua scene
+        SceneManagement.Instance?.SaveGame(FindFirstObjectByType<PlayerController>());
+
         SceneManager.LoadScene(target, LoadSceneMode.Single);
 
         if (SceneManagement.Instance != null)
             SceneManagement.Instance.CurrentSceneName = target;
 
-        // Nếu có hệ thống wave theo scene, gọi an toàn
+        // ✅ Giữ lại xử lý wave
         var wave = FindFirstObjectByType<EnemyWaveSpawner>();
         if (wave != null && wave == EnemyWaveSpawner.Instance)
             EnemyWaveSpawner.Instance.LoadSceneWave();
     }
+
 
     private string GetNextSceneName()
     {

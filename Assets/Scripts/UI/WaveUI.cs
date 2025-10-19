@@ -17,7 +17,6 @@ public class WaveUI : MonoBehaviour
 
     private void Awake()
     {
-        // Auto-assign waveText nếu quên kéo Inspector
         if (waveText == null)
         {
             waveText = GetComponentInChildren<TMP_Text>();
@@ -41,6 +40,7 @@ public class WaveUI : MonoBehaviour
 
     private IEnumerator InitDelayed()
     {
+        // ✅ Đợi spawner khởi tạo xong
         yield return new WaitUntil(() => FindFirstObjectByType<EnemyWaveSpawner>() != null);
 
         if (spawner == null)
@@ -48,10 +48,9 @@ public class WaveUI : MonoBehaviour
             spawner = FindFirstObjectByType<EnemyWaveSpawner>();
         }
 
-        string sceneName = SceneManagement.Instance.CurrentSceneName;
+        string sceneName = SceneManagement.Instance != null ? SceneManagement.Instance.CurrentSceneName : SceneManager.GetActiveScene().name;
         bool cleared = SceneManagement.Instance != null && SceneManagement.Instance.IsSceneCleared(sceneName);
 
-        // Nếu scene đã clear → hiện thông báo thay vì ẩn hoàn toàn
         if (cleared)
         {
             if (waveText != null)
@@ -64,12 +63,14 @@ public class WaveUI : MonoBehaviour
             yield break;
         }
 
-        // 🔑 Đăng ký sự kiện ngay tại đây
+        // 🔑 Đăng ký sự kiện
         if (spawner != null)
         {
-            spawner.OnWaveStarted -= ShowWaveText; // tránh đăng ký trùng
+            spawner.OnWaveStarted -= ShowWaveText;
             spawner.OnWaveStarted += ShowWaveText;
+            Debug.Log("[WaveUI] Bound to EnemyWaveSpawner.");
         }
+
         RefreshUI();
     }
 
@@ -91,7 +92,6 @@ public class WaveUI : MonoBehaviour
 
     private void ShowWaveText(int currentWave, int totalWaves, Color color, bool isBoss)
     {
-
         if (waveText == null) return;
 
         waveText.text = isBoss
@@ -156,32 +156,33 @@ public class WaveUI : MonoBehaviour
             if (waveText != null)
             {
                 waveText.gameObject.SetActive(true);
-                waveText.text = "✅ All waves cleared!";
+                waveText.text = "All waves cleared!";
                 waveText.color = Color.green;
                 canvasGroup.alpha = 1f;
             }
             return;
         }
 
-        // 🔑 Nếu spawner null → tìm lại
         if (spawner == null)
         {
             spawner = FindFirstObjectByType<EnemyWaveSpawner>();
-
             if (spawner == null)
-            {
                 return;
-            }
         }
 
         Wave currentWave = spawner.GetCurrentWave();
         if (currentWave == null)
-        {
             return;
-        }
+
         ShowWaveText(spawner.CurrentWaveIndex + 1,
                      spawner.TotalWaves,
                      currentWave.waveColor,
                      currentWave.isBossWave);
+    }
+
+    // ✅ Hàm mới: cho phép SceneManagement gọi lại sau khi Continue
+    public void ForceRebindSpawner()
+    {
+        StartCoroutine(InitDelayed());
     }
 }

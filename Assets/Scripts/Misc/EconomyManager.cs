@@ -3,20 +3,62 @@ using UnityEngine;
 
 public class EconomyManager : Singleton<EconomyManager>
 {
-    /// Tham chiếu tới UI Text hiển thị số vàng.
     private TMP_Text goldText;
-    /// Số vàng hiện tại của người chơi.
     private int currentGold = 0;
-    /// Tên GameObject chứa UI Text vàng.
-    const string COIN_AMOUNT_TEXT = "Gold Amount Text";
-    /// Tăng số vàng lên 1 và cập nhật UI hiển thị vàng.
-    public void UpdateCurrentGold()
+    private const string COIN_AMOUNT_TEXT = "Gold Amount Text";
+
+    private void Start()
     {
-        currentGold += 1;
+        // Tự tìm Text vàng khi vào scene
         if (goldText == null)
         {
-            goldText = GameObject.Find(COIN_AMOUNT_TEXT).GetComponent<TMP_Text>();
+            var obj = GameObject.Find(COIN_AMOUNT_TEXT);
+            if (obj != null)
+                goldText = obj.GetComponent<TMP_Text>();
         }
-        goldText.text = currentGold.ToString("D3");
-    }   
+
+        UpdateGoldUI();
+    }
+
+    // 🔹 Cộng vàng
+    public void AddGold(int amount)
+    {
+        currentGold += Mathf.Max(0, amount);
+        UpdateGoldUI();
+    }
+
+    // 🔹 Trừ vàng
+    public void SpendGold(int amount)
+    {
+        currentGold = Mathf.Max(0, currentGold - amount);
+        UpdateGoldUI();
+    }
+
+    // 🔹 Cập nhật UI
+    private void UpdateGoldUI()
+    {
+        if (goldText == null)
+        {
+            var obj = GameObject.Find(COIN_AMOUNT_TEXT);
+            if (obj != null)
+                goldText = obj.GetComponent<TMP_Text>();
+        }
+
+        if (goldText != null)
+            goldText.text = currentGold.ToString("D3");
+    }
+
+    // 🔹 Getter/Setter cho Save/Load
+    public int GetGold() => currentGold;
+    public void SetGold(int value)
+    {
+        currentGold = Mathf.Max(0, value);
+        UpdateGoldUI();
+    }
+
+    // Giữ lại hàm cũ (nếu chỗ nào vẫn gọi)
+    public void UpdateCurrentGold()
+    {
+        AddGold(1);
+    }
 }
