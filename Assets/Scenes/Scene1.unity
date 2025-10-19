@@ -155,15 +155,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmSource: {fileID: 0}
   defaultBgm: {fileID: 8300000, guid: 61b1924261fb76f4db18a8a5f3d01a62, type: 3}
+  bgmProfile: {fileID: 0}
   bgmVolume: 0.5
+  fadeTime: 0.6
   playerSource: {fileID: 0}
   playerSfxSource: {fileID: 0}
   playerVolume: 1
   itemSource: {fileID: 0}
   itemVolume: 1
+  itemPickupClip: {fileID: 8300000, guid: 904c6f7cfae26cd4d8460cf0719279e7, type: 3}
+  itemDropClip: {fileID: 8300000, guid: c3f17456eddc5d049b29a67b96e48f8b, type: 3}
   runClip: {fileID: 8300000, guid: 0af83efbb852e8744a5a28f8d8f8d846, type: 3}
-  deathClip: {fileID: 0}
+  deathClip: {fileID: 8300000, guid: 08622b7824bf8594d94473b8b1da74a7, type: 3}
   dashClip: {fileID: 8300000, guid: 3cbe4384f16b56845b6802c4b4207fa5, type: 3}
+  hurtClip: {fileID: 8300000, guid: b36aea42703ea21418197da0e7b595ae, type: 3}
   runVolumeMultiplier: 0.53
   runPitch: 1
   dashVolumeMultiplier: 1.35
@@ -18310,7 +18315,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8390635866133152179, guid: c8e19aacb9231f04c9491576d52393bc, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.309079
+      value: -5.3056216
       objectReference: {fileID: 0}
     - target: {fileID: 8390635866133152179, guid: c8e19aacb9231f04c9491576d52393bc, type: 3}
       propertyPath: m_LocalPosition.y

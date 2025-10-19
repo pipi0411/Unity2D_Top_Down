@@ -1,5 +1,7 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 [System.Serializable]
 public class WeaponSoundSet
@@ -15,21 +17,26 @@ public class AudioManager : MonoBehaviour
     [Header("Background Music")]
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioClip defaultBgm;
+    [SerializeField] private BgmProfile bgmProfile; // ✅ ScriptableObject chứa BGM cho từng scene
     [Range(0f, 1f)] public float bgmVolume = 0.5f;
+    [SerializeField] private float fadeTime = 0.6f; // ✅ thời gian fade khi đổi nhạc
 
     [Header("Player Sounds")]
     [SerializeField] private AudioSource playerSource;        // dùng cho loop run
-    [SerializeField] private AudioSource playerSfxSource;     // dùng cho dash/oneshot
+    [SerializeField] private AudioSource playerSfxSource;     // dùng cho dash, hurt, death
     [Range(0f, 1f)] public float playerVolume = 0.5f;
 
     [Header("Item Sounds")]
     [SerializeField] private AudioSource itemSource;
-    [Range(0f, 1f)] public float itemVolume = 1f;
+    [Range(0f, 1f)] public float itemVolume = 0.5f;
+    [SerializeField] private AudioClip itemPickupClip;
+    [SerializeField] private AudioClip itemDropClip;
 
     [Header("Player Movement & State Sounds")]
     [SerializeField] private AudioClip runClip;
     [SerializeField] private AudioClip deathClip;
     [SerializeField] private AudioClip dashClip;
+    [SerializeField] private AudioClip hurtClip;
     private bool isRunSoundPlaying = false;
 
     [Header("Run Settings")]
@@ -39,12 +46,13 @@ public class AudioManager : MonoBehaviour
     [Header("Dash Settings")]
     [Range(0f, 2f)] [SerializeField] private float dashVolumeMultiplier = 1f;
     [SerializeField] private Vector2 dashPitchRange = new Vector2(0.95f, 1.05f);
-    [Range(0f, 1f)] [SerializeField] private float dashDuckPercent = 0.6f; // hạ % âm run khi dash
-    [Range(0f, 1f)] [SerializeField] private float dashDuckTime = 0.15f;   // thời gian hạ và trả lại
+    [Range(0f, 1f)] [SerializeField] private float dashDuckPercent = 0.6f;
+    [Range(0f, 1f)] [SerializeField] private float dashDuckTime = 0.15f;
 
     [Header("Weapon Sounds")]
     [SerializeField] private List<WeaponSoundSet> weaponSoundSets;
     private WeaponSoundSet currentWeaponSounds;
+    private Coroutine fadeRoutine;
 
     private void Awake()
     {
@@ -57,60 +65,104 @@ public class AudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Ensure sources exist before use
-        EnsureBgmSource();
-        EnsurePlayerSource();
-        EnsurePlayerSfxSource();
-        EnsureItemSource();
+        EnsureAudioSources();
 
         if (defaultBgm != null)
             PlayBgm(defaultBgm);
     }
 
-    private void EnsureBgmSource()
+    private void OnEnable()
     {
-        if (!bgmSource) bgmSource = GetComponent<AudioSource>();
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void EnsureAudioSources()
+    {
         if (!bgmSource) bgmSource = gameObject.AddComponent<AudioSource>();
         bgmSource.loop = true;
         bgmSource.playOnAwake = false;
         bgmSource.volume = bgmVolume;
-    }
 
-    private void EnsurePlayerSource()
-    {
         if (!playerSource) playerSource = gameObject.AddComponent<AudioSource>();
         playerSource.playOnAwake = false;
         playerSource.volume = playerVolume * runVolumeMultiplier;
         playerSource.pitch = runPitch;
-    }
 
-    private void EnsurePlayerSfxSource()
-    {
         if (!playerSfxSource) playerSfxSource = gameObject.AddComponent<AudioSource>();
         playerSfxSource.playOnAwake = false;
         playerSfxSource.loop = false;
-        playerSfxSource.volume = playerVolume; // nhân thêm khi PlayOneShot
-    }
+        playerSfxSource.volume = playerVolume;
 
-    private void EnsureItemSource()
-    {
         if (!itemSource) itemSource = gameObject.AddComponent<AudioSource>();
         itemSource.playOnAwake = false;
         itemSource.volume = itemVolume;
     }
 
-    // ======== BGM ========
+    // ========== BGM ==========
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (bgmProfile == null)
+        {
+            Debug.LogWarning("[AudioManager] Chưa gán BgmProfile!");
+            return;
+        }
+
+        AudioClip clip = bgmProfile.GetClipForScene(scene.name);
+        if (clip != null)
+        {
+            PlayBgm(clip);
+            Debug.Log($"[AudioManager] Đổi nhạc BGM cho scene: {scene.name}");
+        }
+        else
+        {
+            Debug.Log($"[AudioManager] Không có nhạc cho scene: {scene.name}");
+        }
+    }
+
     public void PlayBgm(AudioClip clip)
     {
         if (clip == null) return;
         if (bgmSource.clip == clip && bgmSource.isPlaying) return;
-        bgmSource.clip = clip;
+
+        if (fadeRoutine != null)
+            StopCoroutine(fadeRoutine);
+
+        fadeRoutine = StartCoroutine(FadeToNewBgm(clip));
+    }
+
+    private IEnumerator FadeToNewBgm(AudioClip newClip)
+    {
+        float startVolume = bgmSource.volume;
+
+        // fade out
+        while (bgmSource.volume > 0)
+        {
+            bgmSource.volume -= Time.deltaTime / fadeTime * bgmVolume;
+            yield return null;
+        }
+
+        bgmSource.Stop();
+        bgmSource.clip = newClip;
         bgmSource.Play();
+
+        // fade in
+        while (bgmSource.volume < bgmVolume)
+        {
+            bgmSource.volume += Time.deltaTime / fadeTime * bgmVolume;
+            yield return null;
+        }
+
+        bgmSource.volume = bgmVolume;
     }
 
     public void StopBgm() => bgmSource.Stop();
 
-    // ======== PLAYER STATES ========
+    // ========== PLAYER ==========
     public void PlayPlayerRun()
     {
         if (runClip != null && !isRunSoundPlaying)
@@ -137,26 +189,25 @@ public class AudioManager : MonoBehaviour
     public void PlayPlayerDeath()
     {
         if (deathClip != null)
-        {
-            playerSfxSource.pitch = 1f;
             playerSfxSource.PlayOneShot(deathClip, playerVolume);
-        }
+    }
+
+    public void PlayPlayerHurt()
+    {
+        if (hurtClip != null)
+            playerSfxSource.PlayOneShot(hurtClip, playerVolume);
     }
 
     public void PlayPlayerDash()
     {
         if (dashClip == null) return;
-
-        // random pitch nhẹ cho cảm giác tự nhiên
         playerSfxSource.pitch = Random.Range(dashPitchRange.x, dashPitchRange.y);
         playerSfxSource.PlayOneShot(dashClip, playerVolume * dashVolumeMultiplier);
-
-        // tạm hạ tiếng chạy rồi phục hồi (nếu đang chạy)
         if (isRunSoundPlaying)
             StartCoroutine(DuckRunRoutine());
     }
 
-    private System.Collections.IEnumerator DuckRunRoutine()
+    private IEnumerator DuckRunRoutine()
     {
         float original = playerSource.volume;
         float target = playerVolume * runVolumeMultiplier * dashDuckPercent;
@@ -179,24 +230,20 @@ public class AudioManager : MonoBehaviour
         playerSource.volume = original;
     }
 
-    // ======== PLAYER SFX ========
-    public void PlayPlayerSfx(string soundName)
+    // ========== ITEM ==========
+    public void PlayItemPickup()
     {
-        AudioClip clip = Resources.Load<AudioClip>(soundName);
-        if (clip != null)
-            playerSource.PlayOneShot(clip, playerVolume);
-        else
-            Debug.LogWarning($"[AudioManager] Không tìm thấy clip: {soundName} trong Resources!");
+        if (itemPickupClip != null)
+            itemSource.PlayOneShot(itemPickupClip, itemVolume);
     }
 
-    // ======== ITEM ========
-    public void PlayItemSfx(AudioClip clip)
+    public void PlayItemDrop()
     {
-        if (clip != null)
-            itemSource.PlayOneShot(clip, itemVolume);
+        if (itemDropClip != null)
+            itemSource.PlayOneShot(itemDropClip, itemVolume);
     }
 
-    // ======== WEAPON ========
+    // ========== WEAPON ==========
     public void SetCurrentWeapon(string weaponName)
     {
         currentWeaponSounds = weaponSoundSets.Find(w => w.weaponName == weaponName);
@@ -216,7 +263,7 @@ public class AudioManager : MonoBehaviour
         playerSource.PlayOneShot(clip, playerVolume);
     }
 
-    // ======== VOLUME ========
+    // ========== VOLUME ==========
     public void SetBgmVolume(float v) { bgmVolume = v; bgmSource.volume = v; }
     public void SetPlayerVolume(float v)
     {
@@ -226,9 +273,8 @@ public class AudioManager : MonoBehaviour
     }
     public void SetItemVolume(float v) { itemVolume = v; itemSource.volume = v; }
 
-    // Reset static when domain reload bị tắt trong Editor
 #if UNITY_EDITOR
-    [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics() { Instance = null; }
 #endif
 }

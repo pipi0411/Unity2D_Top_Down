@@ -73,6 +73,8 @@ public class PlayerHealth : Singleton<PlayerHealth>
         knockBack.GetKnockedBack(hitTransform, knockBackThrustAmount);
         StartCoroutine(flash.FlashRoutine());
 
+        AudioManager.Instance.PlayPlayerHurt();
+
         canTakeDamage = false;
         currentHealth -= damageAmount;
         UpdateHealthSlider();

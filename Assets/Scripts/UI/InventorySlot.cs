@@ -37,6 +37,5 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
         }
 
         ActiveWeapon.Instance.NewWeapon(newWeapon as MonoBehaviour);
-        AudioManager.Instance?.PlayPlayerSfx("WeaponSwitch");
     }
 }

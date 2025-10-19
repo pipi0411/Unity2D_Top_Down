@@ -9,9 +9,6 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
     private float timeBetweenAttacks;
     private bool attackButtonDown, isAttacking = false;
 
-    [Header("Audio Settings")]
-    [SerializeField] private string defaultSwitchSound = "WeaponSwitch";
-
     protected override void Awake()
     {
         base.Awake();
@@ -50,7 +47,6 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
         if (!string.IsNullOrEmpty(weaponName))
             AudioManager.Instance?.SetCurrentWeapon(weaponName);
 
-        AudioManager.Instance?.PlayPlayerSfx(defaultSwitchSound);
         AttackCooldown();
     }
 
