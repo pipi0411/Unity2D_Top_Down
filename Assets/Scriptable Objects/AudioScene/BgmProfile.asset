@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfee0d5df28383f42af7606cab16bab2, type: 3}
+  m_Name: BgmProfile
+  m_EditorClassIdentifier: 
+  bgmList:
+  - sceneName: MenuScene
+    bgmClip: {fileID: 0}
+  - sceneName: IntroduceScene
+    bgmClip: {fileID: 0}
+  - sceneName: Scene1
+    bgmClip: {fileID: 8300000, guid: 61b1924261fb76f4db18a8a5f3d01a62, type: 3}
+  - sceneName: Scene2
+    bgmClip: {fileID: 8300000, guid: 61b1924261fb76f4db18a8a5f3d01a62, type: 3}
+  - sceneName: Boss
+    bgmClip: {fileID: 8300000, guid: a75b31dffd809d74581f41f94b3e6047, type: 3}

@@ -154,8 +154,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bgmSource: {fileID: 0}
-  defaultBgm: {fileID: 8300000, guid: 61b1924261fb76f4db18a8a5f3d01a62, type: 3}
-  bgmProfile: {fileID: 0}
+  defaultBgm: {fileID: 0}
+  bgmProfile: {fileID: 11400000, guid: ec2596a7a3465064a81d64b693ab3543, type: 2}
   bgmVolume: 0.5
   fadeTime: 0.6
   playerSource: {fileID: 0}
