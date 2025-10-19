@@ -538,7 +538,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bgmSource: {fileID: 0}
-  defaultBgm: {fileID: 0}
+  defaultBgm: {fileID: 8300000, guid: 10a38140c31937e4482a3e67c0937fab, type: 3}
   bgmProfile: {fileID: 11400000, guid: ec2596a7a3465064a81d64b693ab3543, type: 2}
   bgmVolume: 0.5
   fadeTime: 0.6
