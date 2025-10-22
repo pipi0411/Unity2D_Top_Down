@@ -77,7 +77,7 @@ public class SceneManagement : Singleton<SceneManagement>
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(savePath, json);
 
-            Debug.Log($"[SceneManagement] Game Saved ({data.sceneName}) | wave {data.currentWaveIndex}");
+            Debug.Log($"[SceneManagement] 💾 Game Saved ({data.sceneName}) | wave {data.currentWaveIndex}");
             SaveStateChanged?.Invoke(true);
         }
         catch (Exception e)
@@ -112,21 +112,50 @@ public class SceneManagement : Singleton<SceneManagement>
         };
     }
 
-    public IEnumerator RestoreAfterSceneLoad(SaveData data)
+    private IEnumerator RestoreAfterSceneLoad(SaveData data)
     {
-        yield return new WaitForSecondsRealtime(0.2f);
+        // ✅ Chờ 1 frame để đảm bảo scene và player đã load xong
+        yield return null;
 
-        PlayerController newPlayer = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
-        if (newPlayer != null)
+        PlayerController player = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
+        if (player == null)
         {
-            newPlayer.transform.position = data.playerPosition;
-            if (PlayerHealth.Instance != null)
-                PlayerHealth.Instance.SetHealth(data.playerHealth);
+            Debug.LogError("[SceneManagement] Player not found after load!");
+            yield break;
         }
+
+        // ✅ Reset Rigidbody và velocity để tránh bị “bắn”
+        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0;
+        }
+
+        // ✅ Kiểm tra nếu scene khớp thì gán vị trí cũ, ngược lại tìm SpawnPoint
+        if (SceneManager.GetActiveScene().name == data.sceneName)
+        {
+            player.transform.position = data.playerPosition;
+            Debug.Log($"[SceneManagement] Player position restored: {data.playerPosition}");
+        }
+        else
+        {
+            var spawn = GameObject.FindGameObjectWithTag("SpawnPoint");
+            if (spawn != null)
+            {
+                player.transform.position = spawn.transform.position;
+                Debug.Log("[SceneManagement] Used SpawnPoint because scene changed.");
+            }
+        }
+
+        // ✅ Restore HP, Gold, Weapon
+        if (PlayerHealth.Instance != null)
+            PlayerHealth.Instance.SetHealth(data.playerHealth);
 
         EconomyManager.Instance?.SetGold(data.gold);
         ActiveWeapon.Instance?.EquipWeaponByName(data.currentWeapon);
 
+        // ✅ Restore Wave sau 0.3s
         Instance.StartCoroutine(RestoreWaveAndUI(data.sceneName, data.currentWaveIndex));
     }
 

@@ -10,7 +10,6 @@ public class MenuController : MonoBehaviour
     [Header("Kéo nút Continue vào đây (nếu để trống sẽ tự tìm theo tên 'Continue')")]
     [SerializeField] private GameObject continueButton;
 
-    // đường dẫn file save giống với SceneManagement
     private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
 
     private void Start()
@@ -37,18 +36,37 @@ public class MenuController : MonoBehaviour
     {
         try
         {
+            // 🔹 Xóa file save nếu có
             if (File.Exists(savePath))
             {
                 File.Delete(savePath);
                 Debug.Log($"[MenuController] Deleted old save: {savePath}");
             }
+
+            // 🔹 Reset toàn bộ dữ liệu SceneManagement nếu đang tồn tại
+            if (SceneManagement.Instance != null)
+            {
+                SceneManagement.Instance.ResetClearedScenes();
+                SceneManagement.Instance.CurrentSceneName = "";
+                Debug.Log("[MenuController] Reset SceneManagement state for new game.");
+            }
+
+            // 🔹 Xóa hết dữ liệu trong EconomyManager
+            if (EconomyManager.Instance != null)
+            {
+                EconomyManager.Instance.SetGold(0);
+                Debug.Log("[MenuController] Reset EconomyManager gold.");
+            }
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[MenuController] Delete save failed: {e.Message}");
+            Debug.LogError($"[MenuController] Delete or reset failed: {e.Message}");
         }
 
+        // 🔹 Cập nhật lại UI Continue
         RefreshContinueVisibility();
+
+        // 🔹 Load lại scene đầu tiên
         Time.timeScale = 1f;
         SceneManager.LoadScene(firstSceneName);
     }
@@ -62,18 +80,17 @@ public class MenuController : MonoBehaviour
             return;
         }
 
-        // ✅ Gọi hệ thống LoadGame chính thức để khôi phục mọi dữ liệu
         Debug.Log("[MenuController] Continue game using SceneManagement.");
         Time.timeScale = 1f;
 
-        if (SceneManagement.Instance != null)
+        if (SceneManagement.Instance == null)
         {
-            SceneManagement.Instance.LoadGame(null);
+            // 🔹 Nếu chưa có SceneManagement trong MenuScene → tạo tạm
+            GameObject sm = new GameObject("SceneManagement");
+            sm.AddComponent<SceneManagement>();
         }
-        else
-        {
-            Debug.LogError("[MenuController] SceneManagement instance not found!");
-        }
+
+        SceneManagement.Instance.LoadGame(null);
     }
 
     public void ExitGame()

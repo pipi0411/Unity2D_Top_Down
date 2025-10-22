@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EconomyManager : Singleton<EconomyManager>
@@ -54,6 +55,16 @@ public class EconomyManager : Singleton<EconomyManager>
     {
         currentGold = Mathf.Max(0, value);
         UpdateGoldUI();
+    }
+    public bool SendGold(int amount)
+    {
+        if (currentGold >= amount)
+        {
+            currentGold -= amount;
+            UpdateGoldUI();
+            return true;
+        }
+        return false;
     }
 
     // Giữ lại hàm cũ (nếu chỗ nào vẫn gọi)
