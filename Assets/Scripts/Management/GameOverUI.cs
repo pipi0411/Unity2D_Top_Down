@@ -27,12 +27,6 @@ public class GameOverUI : MonoBehaviour
             rootPanel.SetActive(false);
     }
 
-    public void Retry()
-    {
-        Hide();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
     public void ExitToMenu()
     {
         Hide();

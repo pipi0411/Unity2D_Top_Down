@@ -45,7 +45,6 @@ public class MenuController : MonoBehaviour
                 if (SceneManagement.Instance.gameObject != null)
                 {
                     Destroy(SceneManagement.Instance.gameObject);
-                    Debug.Log("[MenuController] Destroyed SceneManagement gameObject to ensure fresh state.");
                 }
             }
             else
@@ -54,7 +53,6 @@ public class MenuController : MonoBehaviour
                 if (File.Exists(savePath))
                 {
                     File.Delete(savePath);
-                    Debug.Log($"[MenuController] Deleted old save: {savePath}");
                 }
             }
 
@@ -62,7 +60,6 @@ public class MenuController : MonoBehaviour
             if (EconomyManager.Instance != null)
             {
                 EconomyManager.Instance.SetGold(0);
-                Debug.Log("[MenuController] Reset EconomyManager gold.");
             }
 
             // (tùy ý) reset các manager khác nếu có
@@ -117,12 +114,10 @@ public class MenuController : MonoBehaviour
     {
         if (!File.Exists(savePath))
         {
-            Debug.LogWarning("[MenuController] No save file to continue.");
             RefreshContinueVisibility();
             return;
         }
 
-        Debug.Log("[MenuController] Continue game using SceneManagement.");
         Time.timeScale = 1f;
 
         if (SceneManagement.Instance == null)

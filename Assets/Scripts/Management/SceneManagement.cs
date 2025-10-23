@@ -27,7 +27,6 @@ public class SceneManagement : Singleton<SceneManagement>
 
         // ← CHANGED: đảm bảo CurrentSceneName phản ánh scene vừa clear (dùng cho kiểm tra sau này)
         CurrentSceneName = sceneName;
-        Debug.Log($"[SceneManagement] Scene marked cleared: {sceneName}");
     }
 
     public bool IsSceneCleared(string sceneName) => clearedScenes.Contains(sceneName);
@@ -53,7 +52,6 @@ public class SceneManagement : Singleton<SceneManagement>
     {
         if (player == null)
         {
-            Debug.LogWarning("[SceneManagement] Player not found – cannot save.");
             return;
         }
 
@@ -80,8 +78,6 @@ public class SceneManagement : Singleton<SceneManagement>
 
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(savePath, json);
-
-            Debug.Log($"[SceneManagement] 💾 Game Saved ({data.sceneName}) | wave {data.currentWaveIndex}");
             SaveStateChanged?.Invoke(true);
         }
         catch (Exception e)
@@ -97,7 +93,6 @@ public class SceneManagement : Singleton<SceneManagement>
     {
         if (!File.Exists(savePath))
         {
-            Debug.LogWarning("[SceneManagement] No save file found!");
             return;
         }
 
@@ -105,7 +100,6 @@ public class SceneManagement : Singleton<SceneManagement>
         SaveData data = JsonUtility.FromJson<SaveData>(json);
 
         clearedScenes = new HashSet<string>(data.clearedScenes ?? new List<string>());
-        Debug.Log($"[SceneManagement] Loading game: {data.sceneName}");
 
         pendingLoadData = data;
 
@@ -122,11 +116,6 @@ public class SceneManagement : Singleton<SceneManagement>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        if (pendingLoadData == null)
-        {
-            Debug.LogWarning("[SceneManagement] No pending save data on sceneLoaded.");
-            return;
-        }
 
         Instance.CurrentSceneName = pendingLoadData.sceneName;
         Instance.StartCoroutine(Instance.RestoreAfterSceneLoad(pendingLoadData));
@@ -168,7 +157,6 @@ public class SceneManagement : Singleton<SceneManagement>
 
         // Luôn dùng vị trí lưu trong save (không cần SpawnPoint)
         player.transform.position = data.playerPosition;
-        Debug.Log($"[SceneManagement] Player position restored from save: {data.playerPosition}");
 
         // Restore HP
         if (PlayerHealth.Instance != null)
@@ -189,9 +177,7 @@ public class SceneManagement : Singleton<SceneManagement>
             EconomyManager.Instance.SetGold(data.gold);
 
             // Thông báo cho listeners (nếu UI bind sau khi scene load) để rebind
-            SaveStateChanged?.Invoke(true);
-
-            Debug.Log($"[SceneManagement] EconomyManager gold restored: {data.gold}");
+            SaveStateChanged?.Invoke(true);;
         }
         else
         {
@@ -227,7 +213,6 @@ public class SceneManagement : Singleton<SceneManagement>
             {
                 wave.ResetSpawnerState();
                 wave.LoadSceneWave(activeScene, waveIndex);
-                Debug.Log($"[SceneManagement] ✅ WaveSpawner restored at wave {waveIndex + 1} for scene {activeScene}");
             }
             else
             {
@@ -255,7 +240,6 @@ public class SceneManagement : Singleton<SceneManagement>
         if (waveUI != null)
         {
             waveUI.ForceRebindSpawner();
-            Debug.Log("[SceneManagement] ✅ WaveUI rebound to spawner after continue.");
         }
         else
         {
@@ -270,7 +254,6 @@ public class SceneManagement : Singleton<SceneManagement>
             if (File.Exists(savePath))
             {
                 File.Delete(savePath);
-                Debug.Log("[SceneManagement] Save file deleted.");
                 SaveStateChanged?.Invoke(false);
             }
         }
@@ -304,8 +287,6 @@ public class SceneManagement : Singleton<SceneManagement>
 
             // notify subscribers explicitly that there's no save
             SaveStateChanged?.Invoke(false);
-
-            Debug.Log("[SceneManagement] ResetForNewGame executed.");
         }
         catch (Exception e)
         {

@@ -69,7 +69,6 @@ public class WaveUI : MonoBehaviour
         {
             spawner.OnWaveStarted -= ShowWaveText;
             spawner.OnWaveStarted += ShowWaveText;
-            Debug.Log("[WaveUI] Bound to EnemyWaveSpawner.");
         }
 
         RefreshUI();

@@ -39,7 +39,6 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
         var existing = FindObjectsByType<EnemyWaveSpawner>(FindObjectsSortMode.None);
         if (existing.Length > 1)
         {
-            Debug.Log("[WaveSpawner] Destroying duplicate instance from previous scene");
             Destroy(gameObject); // ← changed from DestroyImmediate to safe Destroy
             return;
         }
@@ -85,7 +84,6 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
 
         string activeScene = SceneManager.GetActiveScene().name;
         currentSceneName = activeScene;
-        Debug.Log($"[WaveSpawner] InitAfterLoad → Scene = {activeScene}");
 
         if (SceneManagement.Instance != null)
             SceneManagement.Instance.CurrentSceneName = activeScene;
@@ -93,7 +91,6 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
         if (SceneManagement.Instance != null && SceneManagement.Instance.IsSceneCleared(activeScene))
         {
             allWavesCompleted = true;
-            Debug.Log("[WaveSpawner] Scene already cleared → skip spawning.");
             yield break;
         }
 
@@ -149,7 +146,6 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
         allWavesCompleted = true;
         // CHANGED: mark cleared using actual active scene name to avoid marking wrong scene
         string finishedScene = SceneManager.GetActiveScene().name;
-        Debug.Log($"[WaveSpawner] All waves completed in {finishedScene}");
         SceneManagement.Instance?.MarkSceneCleared(finishedScene);
     }
 
@@ -200,8 +196,6 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
             waves = sceneWaves[currentLevelIndex].waves;
             enemiesAlive = 0;
             allWavesCompleted = false;
-
-            Debug.Log($"[WaveSpawner] Loaded wave data for scene {sceneName}");
             SpawnLevelWaves(startWave);
         }
         else
