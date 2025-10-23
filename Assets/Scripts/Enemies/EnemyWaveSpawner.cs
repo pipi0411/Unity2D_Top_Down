@@ -30,36 +30,89 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
     private bool allWavesCompleted = false;
     public bool AllWavesCompleted => allWavesCompleted;
 
-    void Start()
+    private string currentSceneName;
+
+    private new void Awake()
+    {
+        base.Awake();
+
+        var existing = FindObjectsByType<EnemyWaveSpawner>(FindObjectsSortMode.None);
+        if (existing.Length > 1)
+        {
+            Debug.Log("[WaveSpawner] Destroying duplicate instance from previous scene");
+            Destroy(gameObject); // ← changed from DestroyImmediate to safe Destroy
+            return;
+        }
+
+        currentSceneName = SceneManager.GetActiveScene().name;
+        // NOTE: don't subscribe here — do it in OnEnable()
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private new void OnDestroy()
+    {
+        // extra safety
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        base.OnDestroy();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Guard: nếu object đã bị destroy hoặc không active thì không làm gì
+        if (this == null || !isActiveAndEnabled) return;
+
+        currentSceneName = scene.name;
+        StartCoroutine(InitAfterLoad());
+    }
+
+    private void Start()
     {
         StartCoroutine(InitAfterLoad());
     }
 
     private IEnumerator InitAfterLoad()
     {
-        yield return new WaitForSeconds(0.25f);
-        string currentScene = SceneManager.GetActiveScene().name;
-        SceneManagement.Instance.CurrentSceneName = currentScene;
-        LoadSceneWave(currentScene);
+        yield return new WaitForSeconds(0.3f);
+
+        string activeScene = SceneManager.GetActiveScene().name;
+        currentSceneName = activeScene;
+        Debug.Log($"[WaveSpawner] InitAfterLoad → Scene = {activeScene}");
+
+        if (SceneManagement.Instance != null)
+            SceneManagement.Instance.CurrentSceneName = activeScene;
+
+        if (SceneManagement.Instance != null && SceneManagement.Instance.IsSceneCleared(activeScene))
+        {
+            allWavesCompleted = true;
+            Debug.Log("[WaveSpawner] Scene already cleared → skip spawning.");
+            yield break;
+        }
+
+        ResetSpawnerState();
+
+        LoadSceneWave(activeScene);
     }
 
     private void SpawnLevelWaves(int startWave = 0)
     {
         if (waves == null || waves.Count == 0)
         {
-            Debug.LogWarning("[WaveSpawner] No waves assigned for this scene!");
-            return;
-        }
-
-        if (SceneManagement.Instance != null && SceneManagement.Instance.IsCurrentSceneCleared())
-        {
-            allWavesCompleted = true;
-            Debug.Log("[WaveSpawner] Scene already cleared → skip spawning.");
+            Debug.LogWarning($"[WaveSpawner] No waves assigned for scene: {currentSceneName}");
             return;
         }
 
         allWavesCompleted = false;
         currentWaveIndex = startWave;
+
         StartCoroutine(SpawnWaveRoutine());
     }
 
@@ -67,8 +120,17 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
     {
         while (currentWaveIndex < waves.Count)
         {
+            // Nếu scene đổi trong lúc đang spawn → dừng lại
+            string activeScene = SceneManager.GetActiveScene().name;
+            if (activeScene != currentSceneName)
+            {
+                Debug.Log($"[WaveSpawner] Scene changed ({currentSceneName} → {activeScene}), stop spawning.");
+                yield break;
+            }
+
             Wave wave = waves[currentWaveIndex];
             OnWaveStarted?.Invoke(currentWaveIndex + 1, waves.Count, wave.waveColor, wave.isBossWave);
+
             yield return new WaitForSeconds(2f);
 
             for (int i = 0; i < wave.enemyCount; i++)
@@ -85,13 +147,16 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
         }
 
         allWavesCompleted = true;
-        Debug.Log("[WaveSpawner] All waves completed!");
-        SceneManagement.Instance.MarkSceneCleared(SceneManager.GetActiveScene().name);
+        // CHANGED: mark cleared using actual active scene name to avoid marking wrong scene
+        string finishedScene = SceneManager.GetActiveScene().name;
+        Debug.Log($"[WaveSpawner] All waves completed in {finishedScene}");
+        SceneManagement.Instance?.MarkSceneCleared(finishedScene);
     }
 
     private void SpawnEnemy(Wave wave)
     {
-        if (wave.enemyPrefabs.Count == 0) return;
+        if (wave.enemyPrefabs == null || wave.enemyPrefabs.Count == 0) return;
+
         GameObject prefab = wave.enemyPrefabs[Random.Range(0, wave.enemyPrefabs.Count)];
         GameObject enemy = Instantiate(prefab, GetSpawnPosition(), Quaternion.identity);
 
@@ -125,6 +190,9 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
         if (string.IsNullOrEmpty(sceneName))
             sceneName = SceneManager.GetActiveScene().name;
 
+        // CHANGED: giữ currentSceneName đồng bộ khi gọi explicit load
+        currentSceneName = sceneName;
+
         int index = sceneWaves.FindIndex(sw => sw.SceneName == sceneName);
         if (index != -1)
         {
@@ -133,6 +201,7 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
             enemiesAlive = 0;
             allWavesCompleted = false;
 
+            Debug.Log($"[WaveSpawner] Loaded wave data for scene {sceneName}");
             SpawnLevelWaves(startWave);
         }
         else
@@ -146,5 +215,6 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
         StopAllCoroutines();
         enemiesAlive = 0;
         allWavesCompleted = false;
+        waves = null;
     }
 }

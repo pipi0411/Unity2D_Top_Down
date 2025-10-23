@@ -148,6 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2691ff89f3aa4c45b504a7a8eb52ce8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uiCanvasPrefab: {fileID: 8366244819991471170, guid: 0475015d5432d4946a33fe382cbba4ba, type: 3}
 --- !u!4 &13342835
 Transform:
   m_ObjectHideFlags: 0

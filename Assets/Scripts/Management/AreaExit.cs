@@ -50,7 +50,8 @@ public class AreaExit : MonoBehaviour
         if (other.GetComponent<PlayerController>() == null && !other.CompareTag("Player")) return;
 
         // 1) Khóa theo "đã clear scene chưa" (tuỳ chọn)
-        if (requireSceneCleared && SceneManagement.Instance != null && !SceneManagement.Instance.IsCurrentSceneCleared())
+        if (requireSceneCleared && SceneManagement.Instance != null && 
+            !SceneManagement.Instance.IsSceneCleared(SceneManager.GetActiveScene().name))
         {
             ShowWarning("Defeat the boss to proceed!");
             return;
@@ -86,18 +87,15 @@ public class AreaExit : MonoBehaviour
             yield break;
         }
 
-        // ✅ Lưu game trước khi qua scene
-        SceneManagement.Instance?.SaveGame(FindFirstObjectByType<PlayerController>());
-
         SceneManager.LoadScene(target, LoadSceneMode.Single);
 
         if (SceneManagement.Instance != null)
             SceneManagement.Instance.CurrentSceneName = target;
 
-        // ✅ Giữ lại xử lý wave
+        // nếu muốn load waves cho scene mới, truyền target explicit
         var wave = FindFirstObjectByType<EnemyWaveSpawner>();
         if (wave != null && wave == EnemyWaveSpawner.Instance)
-            EnemyWaveSpawner.Instance.LoadSceneWave();
+            EnemyWaveSpawner.Instance.LoadSceneWave(target); // ← đảm bảo spawner load đúng scene
     }
 
 

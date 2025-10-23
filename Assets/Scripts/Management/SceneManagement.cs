@@ -24,6 +24,10 @@ public class SceneManagement : Singleton<SceneManagement>
     {
         if (!clearedScenes.Contains(sceneName))
             clearedScenes.Add(sceneName);
+
+        // ← CHANGED: đảm bảo CurrentSceneName phản ánh scene vừa clear (dùng cho kiểm tra sau này)
+        CurrentSceneName = sceneName;
+        Debug.Log($"[SceneManagement] Scene marked cleared: {sceneName}");
     }
 
     public bool IsSceneCleared(string sceneName) => clearedScenes.Contains(sceneName);
@@ -86,6 +90,9 @@ public class SceneManagement : Singleton<SceneManagement>
         }
     }
 
+    // ← NEW: lưu tạm data khi chờ load scene
+    private SaveData pendingLoadData;
+
     public void LoadGame(PlayerController player)
     {
         if (!File.Exists(savePath))
@@ -100,89 +107,159 @@ public class SceneManagement : Singleton<SceneManagement>
         clearedScenes = new HashSet<string>(data.clearedScenes ?? new List<string>());
         Debug.Log($"[SceneManagement] Loading game: {data.sceneName}");
 
+        pendingLoadData = data;
+
         if (SceneManager.GetActiveScene().name != data.sceneName)
         {
             SceneManager.LoadScene(data.sceneName);
         }
 
-        SceneManager.sceneLoaded += (scene, mode) =>
+        // dùng named handler để dễ unsubscribe sau này
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    // ← NEW: named handler, sẽ unsubscribe chính nó khi được gọi
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (pendingLoadData == null)
         {
-            Instance.CurrentSceneName = data.sceneName;
-            Instance.StartCoroutine(Instance.RestoreAfterSceneLoad(data));
-        };
+            Debug.LogWarning("[SceneManagement] No pending save data on sceneLoaded.");
+            return;
+        }
+
+        Instance.CurrentSceneName = pendingLoadData.sceneName;
+        Instance.StartCoroutine(Instance.RestoreAfterSceneLoad(pendingLoadData));
+        pendingLoadData = null;
     }
 
     private IEnumerator RestoreAfterSceneLoad(SaveData data)
     {
-        // ✅ Chờ 1 frame để đảm bảo scene và player đã load xong
+        // chờ một frame để scene init xong
         yield return null;
 
-        PlayerController player = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
+        // chờ PlayerController xuất hiện (timeout 2s)
+        PlayerController player = null;
+        float t = 0f;
+        while (player == null && t < 2f)
+        {
+            player = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
+            if (player == null)
+            {
+                yield return null;
+                t += Time.unscaledDeltaTime;
+            }
+        }
+
         if (player == null)
         {
             Debug.LogError("[SceneManagement] Player not found after load!");
             yield break;
         }
 
-        // ✅ Reset Rigidbody và velocity để tránh bị “bắn”
+        // Reset Rigidbody và velocity để tránh bị “bắn”
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
+            // Use linearVelocity (new API) instead of obsolete velocity
             rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0;
+            rb.angularVelocity = 0f;
         }
 
-        // ✅ Kiểm tra nếu scene khớp thì gán vị trí cũ, ngược lại tìm SpawnPoint
-        if (SceneManager.GetActiveScene().name == data.sceneName)
-        {
-            player.transform.position = data.playerPosition;
-            Debug.Log($"[SceneManagement] Player position restored: {data.playerPosition}");
-        }
-        else
-        {
-            var spawn = GameObject.FindGameObjectWithTag("SpawnPoint");
-            if (spawn != null)
-            {
-                player.transform.position = spawn.transform.position;
-                Debug.Log("[SceneManagement] Used SpawnPoint because scene changed.");
-            }
-        }
+        // Luôn dùng vị trí lưu trong save (không cần SpawnPoint)
+        player.transform.position = data.playerPosition;
+        Debug.Log($"[SceneManagement] Player position restored from save: {data.playerPosition}");
 
-        // ✅ Restore HP, Gold, Weapon
+        // Restore HP
         if (PlayerHealth.Instance != null)
             PlayerHealth.Instance.SetHealth(data.playerHealth);
 
-        EconomyManager.Instance?.SetGold(data.gold);
+        // --- CHANGED: chờ EconomyManager tồn tại trước khi set gold ---
+        float wait = 0f;
+        while (EconomyManager.Instance == null && wait < 2f)
+        {
+            yield return null;
+            wait += Time.unscaledDeltaTime;
+        }
+
+        if (EconomyManager.Instance != null)
+        {
+            // thêm 1 frame để UI components có time khởi tạo
+            yield return null;
+            EconomyManager.Instance.SetGold(data.gold);
+
+            // Thông báo cho listeners (nếu UI bind sau khi scene load) để rebind
+            SaveStateChanged?.Invoke(true);
+
+            Debug.Log($"[SceneManagement] EconomyManager gold restored: {data.gold}");
+        }
+        else
+        {
+            Debug.LogWarning("[SceneManagement] EconomyManager not available to restore gold.");
+        }
+
         ActiveWeapon.Instance?.EquipWeaponByName(data.currentWeapon);
 
-        // ✅ Restore Wave sau 0.3s
+        // Restore Wave và UI — chờ spawner/ UI tồn tại, có timeout
         Instance.StartCoroutine(RestoreWaveAndUI(data.sceneName, data.currentWaveIndex));
     }
 
     private IEnumerator RestoreWaveAndUI(string sceneName, int waveIndex)
     {
-        yield return new WaitForSecondsRealtime(0.3f);
+        // chờ tới khi có spawner hoặc timeout (2s)
+        EnemyWaveSpawner wave = null;
+        float t = 0f;
+        while (wave == null && t < 2f)
+        {
+            wave = UnityEngine.Object.FindFirstObjectByType<EnemyWaveSpawner>();
+            if (wave == null)
+            {
+                yield return new WaitForSecondsRealtime(0.1f);
+                t += 0.1f;
+            }
+        }
 
-        var wave = UnityEngine.Object.FindFirstObjectByType<EnemyWaveSpawner>();
+        string activeScene = SceneManager.GetActiveScene().name;
+
         if (wave != null)
         {
-            if (!clearedScenes.Contains(sceneName))
+            if (!clearedScenes.Contains(activeScene))
             {
                 wave.ResetSpawnerState();
-                wave.LoadSceneWave(sceneName, waveIndex);
-                Debug.Log($"[SceneManagement] ✅ WaveSpawner restored at wave {waveIndex + 1}");
+                wave.LoadSceneWave(activeScene, waveIndex);
+                Debug.Log($"[SceneManagement] ✅ WaveSpawner restored at wave {waveIndex + 1} for scene {activeScene}");
             }
             else
             {
                 Debug.Log("[SceneManagement] Scene already cleared → skip spawning waves");
             }
         }
+        else
+        {
+            Debug.LogWarning("[SceneManagement] WaveSpawner not found when restoring waves.");
+        }
 
-        var waveUI = UnityEngine.Object.FindFirstObjectByType<WaveUI>();
+        // chờ và rebind WaveUI
+        WaveUI waveUI = null;
+        t = 0f;
+        while (waveUI == null && t < 2f)
+        {
+            waveUI = UnityEngine.Object.FindFirstObjectByType<WaveUI>();
+            if (waveUI == null)
+            {
+                yield return new WaitForSecondsRealtime(0.1f);
+                t += 0.1f;
+            }
+        }
+
         if (waveUI != null)
         {
             waveUI.ForceRebindSpawner();
             Debug.Log("[SceneManagement] ✅ WaveUI rebound to spawner after continue.");
+        }
+        else
+        {
+            Debug.LogWarning("[SceneManagement] WaveUI not found to rebind.");
         }
     }
 
@@ -204,4 +281,35 @@ public class SceneManagement : Singleton<SceneManagement>
     }
 
     public bool HasSave() => File.Exists(savePath);
+
+    // ← NEW: reset toàn bộ trạng thái dùng khi bắt đầu game mới
+    public void ResetForNewGame()
+    {
+        try
+        {
+            // cancel any pending load handler
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            pendingLoadData = null;
+
+            // clear tracked scenes and transition name
+            ResetClearedScenes();
+            CurrentSceneName = "";
+            sceneTransitionName = "";
+
+            // stop coroutines (nếu có)
+            try { StopAllCoroutines(); } catch { }
+
+            // delete save file and notify listeners
+            DeleteSave();
+
+            // notify subscribers explicitly that there's no save
+            SaveStateChanged?.Invoke(false);
+
+            Debug.Log("[SceneManagement] ResetForNewGame executed.");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[SceneManagement] ResetForNewGame failed: {e.Message}");
+        }
+    }
 }

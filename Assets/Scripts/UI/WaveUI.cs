@@ -48,7 +48,8 @@ public class WaveUI : MonoBehaviour
             spawner = FindFirstObjectByType<EnemyWaveSpawner>();
         }
 
-        string sceneName = SceneManagement.Instance != null ? SceneManagement.Instance.CurrentSceneName : SceneManager.GetActiveScene().name;
+        // ← CHANGED: luôn dùng scene hiện tại để kiểm tra cleared
+        string sceneName = SceneManager.GetActiveScene().name;
         bool cleared = SceneManagement.Instance != null && SceneManagement.Instance.IsSceneCleared(sceneName);
 
         if (cleared)

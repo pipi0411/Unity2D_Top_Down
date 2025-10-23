@@ -36,19 +36,26 @@ public class MenuController : MonoBehaviour
     {
         try
         {
-            // 🔹 Xóa file save nếu có
-            if (File.Exists(savePath))
-            {
-                File.Delete(savePath);
-                Debug.Log($"[MenuController] Deleted old save: {savePath}");
-            }
-
-            // 🔹 Reset toàn bộ dữ liệu SceneManagement nếu đang tồn tại
+            // Nếu có SceneManagement, dùng API của nó để reset triệt để
             if (SceneManagement.Instance != null)
             {
-                SceneManagement.Instance.ResetClearedScenes();
-                SceneManagement.Instance.CurrentSceneName = "";
-                Debug.Log("[MenuController] Reset SceneManagement state for new game.");
+                SceneManagement.Instance.ResetForNewGame();
+
+                // Hủy luôn object singleton nếu nó là DontDestroyOnLoad để tránh giữ state cũ
+                if (SceneManagement.Instance.gameObject != null)
+                {
+                    Destroy(SceneManagement.Instance.gameObject);
+                    Debug.Log("[MenuController] Destroyed SceneManagement gameObject to ensure fresh state.");
+                }
+            }
+            else
+            {
+                // Nếu không có SceneManagement thì xóa file save trực tiếp
+                if (File.Exists(savePath))
+                {
+                    File.Delete(savePath);
+                    Debug.Log($"[MenuController] Deleted old save: {savePath}");
+                }
             }
 
             // 🔹 Xóa hết dữ liệu trong EconomyManager
@@ -57,6 +64,41 @@ public class MenuController : MonoBehaviour
                 EconomyManager.Instance.SetGold(0);
                 Debug.Log("[MenuController] Reset EconomyManager gold.");
             }
+
+            // (tùy ý) reset các manager khác nếu có
+            if (PlayerHealth.Instance != null)
+            {
+                // Try to find a max-health value via common property/field names; fall back to a safe default.
+                var ph = PlayerHealth.Instance;
+                int maxHealth = -1;
+                var type = ph.GetType();
+                var prop = type.GetProperty("MaxHealth") ?? type.GetProperty("maxHealth") ?? type.GetProperty("MaxHP") ?? type.GetProperty("maxHP") ?? type.GetProperty("StartingHealth") ?? type.GetProperty("startingHealth");
+                if (prop != null)
+                {
+                    var val = prop.GetValue(ph);
+                    if (val is int) maxHealth = (int)val;
+                    else if (val is float) maxHealth = Mathf.RoundToInt((float)val);
+                }
+                else
+                {
+                    var field = type.GetField("MaxHealth") ?? type.GetField("maxHealth") ?? type.GetField("MaxHP") ?? type.GetField("maxHP") ?? type.GetField("StartingHealth") ?? type.GetField("startingHealth");
+                    if (field != null)
+                    {
+                        var val = field.GetValue(ph);
+                        if (val is int) maxHealth = (int)val;
+                        else if (val is float) maxHealth = Mathf.RoundToInt((float)val);
+                    }
+                }
+
+                if (maxHealth <= 0)
+                {
+                    // Fallback default if no max value found; adjust as needed for your game.
+                    maxHealth = 100;
+                }
+
+                ph.SetHealth(maxHealth);
+            }
+            ActiveWeapon.Instance?.EquipWeaponByName("");
         }
         catch (System.Exception e)
         {
