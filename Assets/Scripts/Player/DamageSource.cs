@@ -12,5 +12,12 @@ public class DamageSource : MonoBehaviour
     {
         EnemyHealth enemyHealth = collision.gameObject.GetComponent<EnemyHealth>();
         enemyHealth?.TakeDamage(damageAmount);
+
+        BossHealthManager bossHealth = collision.gameObject.GetComponent<BossHealthManager>();
+        if (bossHealth != null)
+        {
+            bossHealth.TakeDamage(damageAmount);
+            Debug.Log($"💀 Weapon HIT Boss! Damage: {damageAmount} | Boss HP: {bossHealth.currentHealth}/{bossHealth.maxHealth}");
+        }
     }
 }
