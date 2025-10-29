@@ -17,7 +17,6 @@ public class DamageSource : MonoBehaviour
         if (bossHealth != null)
         {
             bossHealth.TakeDamage(damageAmount);
-            Debug.Log($"💀 Weapon HIT Boss! Damage: {damageAmount} | Boss HP: {bossHealth.currentHealth}/{bossHealth.maxHealth}");
         }
     }
 }

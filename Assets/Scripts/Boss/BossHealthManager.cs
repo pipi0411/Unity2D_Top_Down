@@ -21,8 +21,21 @@ public class BossHealthManager : MonoBehaviour
         // Ensure the Boss has a collider to detect damage
         if (GetComponent<Collider2D>() == null)
         {
-            Debug.LogWarning("Boss missing Collider2D! Adding one automatically.");
             gameObject.AddComponent<BoxCollider2D>().isTrigger = true;
+        }
+
+        // Ensure boss has EnemyHealth so WaveSpawner (if it spawns boss) can track it.
+        var eh = GetComponent<EnemyHealth>();
+        if (eh == null)
+        {
+            eh = gameObject.AddComponent<EnemyHealth>();
+            // khởi tạo health của EnemyHealth từ boss currentHealth
+            eh.SetCurrentHealth(currentHealth);
+        }
+        else
+        {
+            // ensure EnemyHealth current matches boss (if prefab had it)
+            eh.SetCurrentHealth(currentHealth);
         }
     }
 
@@ -58,7 +71,6 @@ public class BossHealthManager : MonoBehaviour
         {
             isPhase2 = true;
             GetComponent<Animator>().SetBool("isPhase2", true);
-            Debug.Log("Boss entered Phase 2! Teleport unlocked.");
         }
 
         // Xử lý chết: Chuyển từ Hurt cuối sang Die
@@ -94,6 +106,24 @@ public class BossHealthManager : MonoBehaviour
             animator.ResetTrigger("Hurt"); // Đảm bảo tắt Hurt trước khi Die
         }
         GetComponent<BossController>().enabled = false;
-        Destroy(gameObject, 2f);
+
+        // Nếu có EnemyHealth => dùng method công khai để notify Spawner (OnEnemyDied) trước khi Destroy
+        var eh = GetComponent<EnemyHealth>();
+        if (eh != null)
+        {
+            // delay để animation Die có thời gian chơi (tùy chỉnh delay)
+            StartCoroutine(NotifyEnemyHealthAndDestroy(eh, 1.5f));
+        }
+        else
+        {
+            Destroy(gameObject, 2f);
+        }
+    }
+
+    private System.Collections.IEnumerator NotifyEnemyHealthAndDestroy(EnemyHealth eh, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        // NotifyExternalDeath sẽ invoke OnEnemyDied và Destroy(gameObject)
+        eh.NotifyExternalDeath();
     }
 }

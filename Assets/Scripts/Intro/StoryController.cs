@@ -5,6 +5,10 @@ using TMPro;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Trình chiếu Story có fade in/out, auto-advance theo thời gian.
+/// KHÔNG còn Skip/overlay đen.
+/// </summary>
 public class StoryController : MonoBehaviour
 {
     [System.Serializable]
@@ -22,42 +26,50 @@ public class StoryController : MonoBehaviour
     public StoryPage[] pages;
 
     [Header("Transition")]
+    [Tooltip("Thời gian fade in/out cho mỗi lần chuyển trang.")]
     public float fadeDuration = 0.5f;
 
     [Header("Auto Play")]
+    [Tooltip("Tự động chuyển trang sau Page Hold Seconds.")]
     public bool autoPlay = true;
+
+    [Tooltip("Thời gian giữ mỗi trang trước khi chuyển trang (không tính thời gian fade).")]
     public float pageHoldSeconds = 2.0f;
-    [Tooltip("Thêm thời gian ở trang cuối trước khi tự qua scene.")]
+
+    [Tooltip("Chờ thêm ở TRANG CUỐI trước khi tự sang scene kế.")]
     public float lastPageExtraWaitSeconds = 2.0f;
+
+    [Tooltip("Dùng unscaled time để không bị ảnh hưởng bởi Time.timeScale.")]
     public bool useUnscaledTime = true;
 
     [Header("Next Scene")]
+    [Tooltip("Tự động load scene tiếp theo khi hết trang.")]
     public bool autoLoadNextScene = true;
+
+    [Tooltip("Tên scene sẽ load sau khi hết trang.")]
     public string nextSceneName = "Scene1";
 
-    [Header("Skip Fade To Black")]
-    [Tooltip("Image đen full-screen (trên cùng Canvas).")]
-    public Image fadeOverlay;
-    public float skipFadeDuration = 0.5f;
-
     [Header("Input Lock")]
+    [Tooltip("Khóa input trong lúc fade để tránh double trigger.")]
     public bool lockDuringFade = true;
+
+    [Tooltip("Debounce input tối thiểu giữa 2 lần bấm.")]
     public float minInputGapSeconds = 0.15f;
-    [Tooltip("Image trong suốt full-screen để chặn input khi khóa (tuỳ chọn).")]
+
+    [Tooltip("UI/Image trong suốt full-screen để chặn raycast khi bị khóa (tùy chọn).")]
     public Image inputBlocker;
 
     private int currentPage = 0;
     private CanvasGroup imageGroup;
     private CanvasGroup textGroup;
-    private CanvasGroup overlayGroup;   // CanvasGroup của fadeOverlay
-    private CanvasGroup blockerGroup;   // CanvasGroup của inputBlocker (nếu có)
+    private CanvasGroup blockerGroup;
 
     private bool isFading = false;
-    private bool isSkipping = false;
 
     private double nextPageAt = double.PositiveInfinity;
     private Coroutine autoLoopCo;
 
+    // Input lock
     private double lockedUntil = 0.0;
 
     void Start()
@@ -75,25 +87,13 @@ public class StoryController : MonoBehaviour
         textGroup = storyText != null ? storyText.GetComponent<CanvasGroup>() : null;
         if (storyText != null && textGroup == null) textGroup = storyText.gameObject.AddComponent<CanvasGroup>();
 
-        // --- Fade overlay: đảm bảo KHÔNG chặn raycast khi idle ---
-        if (fadeOverlay != null)
-        {
-            overlayGroup = fadeOverlay.GetComponent<CanvasGroup>();
-            if (overlayGroup == null) overlayGroup = fadeOverlay.gameObject.AddComponent<CanvasGroup>();
-            overlayGroup.alpha = 0f;
-            overlayGroup.interactable = false;
-            overlayGroup.blocksRaycasts = false; // quan trọng: không chặn nút Skip
-            fadeOverlay.raycastTarget = false;
-        }
-
-        // --- Input blocker: mặc định không chặn ---
         if (inputBlocker != null)
         {
             blockerGroup = inputBlocker.GetComponent<CanvasGroup>();
             if (blockerGroup == null) blockerGroup = inputBlocker.gameObject.AddComponent<CanvasGroup>();
             blockerGroup.alpha = 0f;
             blockerGroup.interactable = false;
-            blockerGroup.blocksRaycasts = false; // quan trọng
+            blockerGroup.blocksRaycasts = false; // không chặn khi idle
             inputBlocker.raycastTarget = false;
         }
 
@@ -123,13 +123,6 @@ public class StoryController : MonoBehaviour
         }
     }
 
-    // ===== Skip một chạm =====
-    public void OnClickSkipIntro()
-    {
-        if (IsInputLocked()) return;
-        StartCoroutine(SkipWithFadeToBlack());
-    }
-
     [ContextMenu("NextPage")]
     public void NextPage()
     {
@@ -150,7 +143,7 @@ public class StoryController : MonoBehaviour
         }
         else
         {
-            LoadNextSceneImmediate();
+            TryLoadNextScene();
         }
     }
 
@@ -158,7 +151,7 @@ public class StoryController : MonoBehaviour
     {
         if (currentPage >= pages.Length - 1)
         {
-            LoadNextSceneImmediate();
+            TryLoadNextScene();
             return;
         }
 
@@ -178,7 +171,7 @@ public class StoryController : MonoBehaviour
     {
         while (autoPlay)
         {
-            if (!isFading && !isSkipping)
+            if (!isFading)
             {
                 if (currentPage < pages.Length - 1)
                 {
@@ -193,7 +186,7 @@ public class StoryController : MonoBehaviour
                 {
                     if (autoLoadNextScene && Now() >= nextPageAt)
                     {
-                        LoadNextSceneImmediate();
+                        TryLoadNextScene();
                         yield break;
                     }
                 }
@@ -205,7 +198,7 @@ public class StoryController : MonoBehaviour
     private IEnumerator FadeToPage(int index, System.Action onDone = null)
     {
         isFading = true;
-        if (lockDuringFade) LockInput(0); // chặn input trong lúc fade
+        if (lockDuringFade) LockInput(0); // vì: chặn input trong lúc fade
 
         yield return Fade(1f, 0f);
 
@@ -216,7 +209,7 @@ public class StoryController : MonoBehaviour
         yield return Fade(0f, 1f);
 
         isFading = false;
-        if (!isSkipping) UnlockInput();
+        UnlockInput();
         onDone?.Invoke();
     }
 
@@ -257,36 +250,10 @@ public class StoryController : MonoBehaviour
         SetAlpha(instant ? 1f : 0f);
     }
 
-    // ===== Skip: Fade-to-black một chạm =====
-    private IEnumerator SkipWithFadeToBlack()
+    private void TryLoadNextScene()
     {
-        isSkipping = true;
-        StopAllCoroutines();
-        LockInput(0); // đang chuyển scene
-
-        if (overlayGroup == null)
-        {
-            LoadNextSceneImmediate();
-            yield break;
-        }
-
-        // Quan trọng: bật chặn raycast qua overlay
-        overlayGroup.blocksRaycasts = true;
-        fadeOverlay.raycastTarget = true;
-
-        float t = 0f;
-        overlayGroup.alpha = 0f;
-
-        while (t < skipFadeDuration)
-        {
-            t += Delta();
-            overlayGroup.alpha = Mathf.Clamp01(t / Mathf.Max(0.0001f, skipFadeDuration));
-            yield return null;
-        }
-
-        overlayGroup.alpha = 1f;
-        LoadNextSceneImmediate();
-        // Không unlock: scene mới sẽ reset
+        if (!autoLoadNextScene || string.IsNullOrEmpty(nextSceneName)) return;
+        SceneManager.LoadScene(nextSceneName);
     }
 
     // ===== Helpers thời gian / lịch =====
@@ -304,12 +271,6 @@ public class StoryController : MonoBehaviour
 
     private bool IsLastPage() => currentPage == pages.Length - 1;
 
-    private void LoadNextSceneImmediate()
-    {
-        if (!autoLoadNextScene || string.IsNullOrEmpty(nextSceneName)) return;
-        SceneManager.LoadScene(nextSceneName);
-    }
-
     private double Now()
     {
 #if UNITY_2022_2_OR_NEWER
@@ -321,11 +282,10 @@ public class StoryController : MonoBehaviour
 
     private float Delta() => useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
 
-    // ===== Input Lock Core =====
+    // ===== Input Lock =====
     private bool IsInputLocked()
     {
         if (isFading && lockDuringFade) return true;
-        if (isSkipping) return true;
         if (Now() < lockedUntil) return true;
         return false;
     }
@@ -333,28 +293,20 @@ public class StoryController : MonoBehaviour
     private void LockInput(float seconds)
     {
         lockedUntil = Mathf.Max((float)lockedUntil, (float)(Now() + Mathf.Max(0f, seconds)));
-
         if (inputBlocker != null)
         {
             inputBlocker.raycastTarget = true;
-            if (blockerGroup != null) blockerGroup.blocksRaycasts = true; // quan trọng
+            if (blockerGroup != null) blockerGroup.blocksRaycasts = true;
         }
     }
 
     private void UnlockInput()
     {
-        lockedUntil = 0.0;
-
+        lockedUntil = 0.0f;
         if (inputBlocker != null)
         {
             inputBlocker.raycastTarget = false;
             if (blockerGroup != null) blockerGroup.blocksRaycasts = false;
-        }
-
-        if (fadeOverlay != null)
-        {
-            fadeOverlay.raycastTarget = false;
-            if (overlayGroup != null) overlayGroup.blocksRaycasts = false; // quan trọng
         }
     }
 }

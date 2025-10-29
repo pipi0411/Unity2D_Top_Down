@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1067160846050595132}
   - component: {fileID: 1426693677457420125}
   - component: {fileID: 2871587307998002229}
+  - component: {fileID: 4609887288684757629}
   m_Layer: 0
   m_Name: BossNightBorne
   m_TagString: Untagged
@@ -214,6 +215,21 @@ MonoBehaviour:
   currentHealth: 100
   healthSlider: {fileID: 135224408494173731}
   isPhase2: 0
+--- !u!114 &4609887288684757629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412807667820849927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f8a283c0c27ebd4e9ed1145f9f2e841, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyData: {fileID: 0}
+  fallbackStartingHealth: 1
+  fallbackFlashRestoreTime: 0.1
 --- !u!1 &1699655824056114829
 GameObject:
   m_ObjectHideFlags: 0

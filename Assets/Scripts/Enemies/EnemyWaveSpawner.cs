@@ -22,6 +22,14 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
     private int currentWaveIndex = 0;
     private int enemiesAlive = 0;
 
+    // reference tới coroutine spawn để dừng an toàn (không StopAllCoroutines)
+    private Coroutine spawnRoutineCo;
+    // cờ để biết có thực sự spawn ít nhất 1 enemy trong level này
+    private bool spawnedAnyEnemies = false;
+
+    // tracked enemies (những EnemyHealth đã subscribe) — dùng để unsubscribe khi reset
+    private readonly System.Collections.Generic.List<EnemyHealth> trackedEnemies = new System.Collections.Generic.List<EnemyHealth>();
+
     public delegate void WaveEvent(int currentWave, int totalWaves, Color color, bool isBoss);
     public event WaveEvent OnWaveStarted;
 
@@ -96,6 +104,9 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
 
         ResetSpawnerState();
 
+        // nếu trong scene đã có enemy (ví dụ boss đặt sẵn), đăng ký để spawner biết
+        RegisterExistingEnemies();
+
         LoadSceneWave(activeScene);
     }
 
@@ -109,8 +120,11 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
 
         allWavesCompleted = false;
         currentWaveIndex = startWave;
+        spawnedAnyEnemies = false;
 
-        StartCoroutine(SpawnWaveRoutine());
+        // dừng coroutine trước đó nếu có, rồi start mới
+        if (spawnRoutineCo != null) StopCoroutine(spawnRoutineCo);
+        spawnRoutineCo = StartCoroutine(SpawnWaveRoutine());
     }
 
     private IEnumerator SpawnWaveRoutine()
@@ -122,6 +136,7 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
             if (activeScene != currentSceneName)
             {
                 Debug.Log($"[WaveSpawner] Scene changed ({currentSceneName} → {activeScene}), stop spawning.");
+                spawnRoutineCo = null;
                 yield break;
             }
 
@@ -132,6 +147,8 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
 
             for (int i = 0; i < wave.enemyCount; i++)
             {
+                // mỗi khi spawn thực sự tăng cờ và instantiate enemy (và EnemyHealth sẽ được subscribe trong SpawnEnemy)
+                spawnedAnyEnemies = true;
                 SpawnEnemy(wave);
                 yield return new WaitForSeconds(wave.spawnDelay);
             }
@@ -144,9 +161,18 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
         }
 
         allWavesCompleted = true;
-        // CHANGED: mark cleared using actual active scene name to avoid marking wrong scene
-        string finishedScene = SceneManager.GetActiveScene().name;
-        SceneManagement.Instance?.MarkSceneCleared(finishedScene);
+        spawnRoutineCo = null;
+        // CHANGED: mark cleared only when we had waves and actually spawned something
+        if (waves != null && waves.Count > 0 && spawnedAnyEnemies)
+        {
+            string finishedScene = SceneManager.GetActiveScene().name;
+            Debug.Log($"[WaveSpawner] All waves completed in scene {finishedScene}. Marking cleared.");
+            SceneManagement.Instance?.MarkSceneCleared(finishedScene);
+        }
+        else
+        {
+            Debug.LogWarning($"[WaveSpawner] Waves finished but no enemies were spawned (scene={SceneManager.GetActiveScene().name}). Skipping mark-cleared.");
+        }
     }
 
     private void SpawnEnemy(Wave wave)
@@ -160,6 +186,8 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
         {
             enemiesAlive++;
             health.OnEnemyDied += HandleEnemyDeath;
+            // track để unsubscribe khi reset
+            if (!trackedEnemies.Contains(health)) trackedEnemies.Add(health);
         }
     }
 
@@ -206,9 +234,40 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
 
     public void ResetSpawnerState()
     {
-        StopAllCoroutines();
+        // Dừng riêng coroutine spawn (an toàn hơn)
+        if (spawnRoutineCo != null) StopCoroutine(spawnRoutineCo);
+        spawnRoutineCo = null;
+
+        // Unsubscribe tất cả EnemyHealth đã đăng ký (nếu còn sống)
+        for (int i = trackedEnemies.Count - 1; i >= 0; i--)
+        {
+            var eh = trackedEnemies[i];
+            if (eh != null)
+                eh.OnEnemyDied -= HandleEnemyDeath;
+            trackedEnemies.RemoveAt(i);
+        }
+
         enemiesAlive = 0;
         allWavesCompleted = false;
         waves = null;
+        spawnedAnyEnemies = false;
+    }
+
+    // đăng ký các EnemyHealth hiện có trong scene (ví dụ boss đặt sẵn)
+    private void RegisterExistingEnemies()
+    {
+        var existing = FindObjectsByType<EnemyHealth>(FindObjectsSortMode.None);
+        foreach (var eh in existing)
+        {
+            if (eh == null) continue;
+            if (!trackedEnemies.Contains(eh))
+            {
+                trackedEnemies.Add(eh);
+                eh.OnEnemyDied += HandleEnemyDeath;
+                enemiesAlive++;
+                spawnedAnyEnemies = true;
+                Debug.Log($"[WaveSpawner] Registered existing enemy: {eh.name}");
+            }
+        }
     }
 }
