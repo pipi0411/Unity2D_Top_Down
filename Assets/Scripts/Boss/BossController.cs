@@ -1,50 +1,62 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Điều khiển Boss: tấn công theo phạm vi; kích hoạt AttackArea sau một delay.
+/// Có đầy đủ guard để không gọi vào object đã unload/disable.
+/// </summary>
 public class BossController : MonoBehaviour
 {
     [Header("Boss Stats")]
     public float moveSpeed = 2f;
-    public AttackArea attackArea; // changed from Transform to AttackArea
-    
-    [Header("⚔️ ATTACK SETTINGS")]
+
+    [Header("References")]
+    public AttackArea attackArea; // kéo thả từ Inspector, hoặc sẽ tìm con tên "AttackArea"
+
+    [Header("Attack Settings")]
     public int bossDamage = 1;
-    public float attackCooldown = 0.5f; 
-    
-    [Header("🔥 QUICK ATTACK FIX")]
-    public float attackRange = 3f;  
+    [Tooltip("Thời gian giữa các lần tấn công (khóa điều khiển).")]
+    public float attackCooldown = 0.5f;
+
+    [Header("Ranges")]
+    [Tooltip("Khoảng cách để bắt đầu tấn công.")]
+    public float attackRange = 3f;
+    [Tooltip("Khoảng cách để hủy tấn công đang diễn ra.")]
     public float interruptRange = 4.5f;
-    
+
+    [Header("Timing")]
+    [Tooltip("Độ trễ (giây) trước khi bật hitbox sau khi bắt đầu animation tấn công.")]
+    public float attackActivationDelay = 0.2f;
+    [Tooltip("Thời gian khoá tấn công sau khi bắt đầu (giây).")]
+    public float attackLockDuration = 0.5f;
+
     private Animator animator;
     private bool facingRight = true;
     private bool isAttacking = false;
+    private bool attackLocked = false;
     private float lastAttackTime;
+
+    // Tuỳ dự án của bạn – giả định có BossHealthManager để phase/teleport
     private BossHealthManager healthManager;
+
     private GameObject playerObj;
     private Transform player;
     private PlayerHealth playerHealth;
-    
-    // 🔑 LOCK ATTACK SYSTEM
-    private bool attackLocked = false;
-    private float attackLockDuration = 0.5f;
-    private float attackActivationDelay = 0.2f; // Delay to simulate swing start
 
-    void Start()
+    private void Start()
     {
         animator = GetComponent<Animator>();
         healthManager = GetComponent<BossHealthManager>();
         FindPlayer();
 
-        // safety: if designer assigned Transform previously, try to find AttackArea component on it
         if (attackArea == null)
         {
             var child = transform.Find("AttackArea");
-            if (child != null)
-                attackArea = child.GetComponent<AttackArea>();
+            if (child != null) attackArea = child.GetComponent<AttackArea>();
         }
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         if (playerObj == null)
         {
@@ -54,6 +66,7 @@ public class BossController : MonoBehaviour
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
+        // Điều kiện bắt đầu tấn công
         if (!isAttacking && !attackLocked && distanceToPlayer <= attackRange)
         {
             StartAttack();
@@ -64,18 +77,20 @@ public class BossController : MonoBehaviour
             MoveTowardsPlayer();
         }
 
+        // Hủy tấn công nếu người chơi chạy ra xa
         if (isAttacking && distanceToPlayer > interruptRange)
         {
             InterruptAttack();
         }
 
-        if (healthManager.isPhase2 && healthManager.CanTeleport() && Random.value < 0.1f)
+        // Ví dụ phase 2 (tuỳ dự án của bạn)
+        if (healthManager != null && healthManager.isPhase2 && healthManager.CanTeleport() && Random.value < 0.1f)
         {
             healthManager.TeleportToPlayer(player);
         }
     }
 
-    void FindPlayer()
+    private void FindPlayer()
     {
         playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
@@ -85,7 +100,7 @@ public class BossController : MonoBehaviour
         }
     }
 
-    void MoveTowardsPlayer()
+    private void MoveTowardsPlayer()
     {
         if (player == null) return;
 
@@ -98,86 +113,76 @@ public class BossController : MonoBehaviour
         animator.SetBool("isMoving", true);
     }
 
-    void Flip()
+    private void Flip()
     {
         facingRight = !facingRight;
-        Vector3 scale = transform.localScale;
-        scale.x *= -1;
+        var scale = transform.localScale;
+        scale.x *= -1f;
         transform.localScale = scale;
     }
 
-    void StartAttack()
+    private void StartAttack()
     {
         isAttacking = true;
         attackLocked = true;
         animator.SetBool("isAttacking", true);
         animator.SetBool("isMoving", false);
         lastAttackTime = Time.time;
-        
+
         StartCoroutine(UnlockAttackAfterDuration());
     }
 
+    /// <summary>
+    /// Bật hitbox sau 1 khoảng delay để khớp animation vung tay.
+    /// Có đầy đủ guard để tránh gọi vào object đã bị unload/disable.
+    /// </summary>
     private IEnumerator ActivateAttackAreaAfterDelay()
     {
         yield return new WaitForSeconds(attackActivationDelay);
-        if (isAttacking && attackArea != null)
-        {
-            attackArea.Activate(); // AttackArea handles OnTriggerEnter2D -> damage player
-        }
+
+        // Guard cực chặt
+        if (this == null || !isActiveAndEnabled) yield break;
+        if (!isAttacking) yield break;
+        if (attackArea == null || !attackArea.isActiveAndEnabled || !attackArea.gameObject.activeInHierarchy) yield break;
+
+        attackArea.Activate(); // AttackArea không còn coroutine → rất an toàn
     }
 
+    /// <summary>
+    /// Mở khoá tấn công sau một thời gian; đảm bảo tắt hitbox an toàn.
+    /// </summary>
     private IEnumerator UnlockAttackAfterDuration()
     {
         yield return new WaitForSeconds(attackLockDuration);
+
+        if (this == null) yield break;
+
         attackLocked = false;
         isAttacking = false;
         animator.SetBool("isAttacking", false);
-        // ensure hitbox off
-        if (attackArea != null)
-            attackArea.StopAllCoroutines(); // stop activate coroutine if running
+
+        if (attackArea != null) attackArea.Deactivate();
     }
 
-    void InterruptAttack()
+    private void InterruptAttack()
     {
-        if (attackLocked) return;
+        if (attackLocked) return; // đang khoá thì không interrupt
+
         isAttacking = false;
         attackLocked = false;
         animator.SetBool("isAttacking", false);
         animator.SetTrigger("interruptAttack");
-        if (attackArea != null)
-        {
-            attackArea.StopAllCoroutines();
-        }
+
+        if (attackArea != null) attackArea.Deactivate();
     }
 
-    public void DealDamageToBoss(int damage)
-    {
-        if (healthManager != null)
-        {
-            healthManager.TakeDamage(damage);
-        }
-    }
+    // API phụ (nếu animator gọi event)
+    public void ActivateAttackArea()  => attackArea?.Activate();
+    public void DeactivateAttackArea() => attackArea?.Deactivate();
 
-    // expose utility methods if other systems want to trigger area manually
-    public void ActivateAttackArea()
-    {
-        attackArea?.Activate();
-    }
-
-    public void DeactivateAttackArea()
-    {
-        // stop any active coroutine and disable collider
-        if (attackArea != null)
-        {
-            attackArea.StopAllCoroutines();
-            // ensure collider off
-            var col = attackArea.GetComponent<Collider2D>();
-            if (col != null) col.enabled = false;
-        }
-    }
-
+    // Nếu có vũ khí người chơi đánh vào boss
     public void OnBossHitByWeapon(int damage)
     {
-        DealDamageToBoss(damage);
+        if (healthManager != null) healthManager.TakeDamage(damage);
     }
 }

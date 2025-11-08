@@ -13,8 +13,8 @@ TagManager:
   - Camera
   - Water
   - UI
-  - 
-  - 
+  - Player
+  - EnemyHitBox
   - 
   - 
   - 
