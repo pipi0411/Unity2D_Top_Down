@@ -2,16 +2,41 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
 {
     [System.Serializable]
     class SceneWave
     {
+    #if UNITY_EDITOR
         public SceneAsset scene;
+    #endif
+        [SerializeField] private string sceneName;
         public List<Wave> waves;
-        public string SceneName => scene != null ? scene.name : "NULL";
+
+        public string SceneName
+        {
+            get
+            {
+    #if UNITY_EDITOR
+                return scene != null ? scene.name : (!string.IsNullOrEmpty(sceneName) ? sceneName : "NULL");
+    #else
+                return !string.IsNullOrEmpty(sceneName) ? sceneName : "NULL";
+    #endif
+            }
+        }
+
+    #if UNITY_EDITOR
+        // gọi từ OnValidate của MonoBehaviour để lưu tên scene vào sceneName (serialize cho build)
+        public void SyncSceneNameFromEditor()
+        {
+            if (scene != null)
+                sceneName = scene.name;
+        }
+    #endif
     }
 
     [SerializeField] private List<SceneWave> sceneWaves;
@@ -270,4 +295,16 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
             }
         }
     }
+
+#if UNITY_EDITOR
+    // đảm bảo các sceneName được cập nhật khi chỉnh trong Inspector (được lưu vào build)
+    private void OnValidate()
+    {
+        if (sceneWaves == null) return;
+        foreach (var sw in sceneWaves)
+            sw?.SyncSceneNameFromEditor();
+        // mark dirty để Unity lưu thay đổi
+        UnityEditor.EditorUtility.SetDirty(this);
+    }
+#endif
 }

@@ -5,7 +5,7 @@ public class BossController : MonoBehaviour
 {
     [Header("Boss Stats")]
     public float moveSpeed = 2f;
-    public Transform attackArea;
+    public AttackArea attackArea; // changed from Transform to AttackArea
     
     [Header("⚔️ ATTACK SETTINGS")]
     public int bossDamage = 1;
@@ -34,9 +34,17 @@ public class BossController : MonoBehaviour
         animator = GetComponent<Animator>();
         healthManager = GetComponent<BossHealthManager>();
         FindPlayer();
+
+        // safety: if designer assigned Transform previously, try to find AttackArea component on it
+        if (attackArea == null)
+        {
+            var child = transform.Find("AttackArea");
+            if (child != null)
+                attackArea = child.GetComponent<AttackArea>();
+        }
     }
 
-    void FixedUpdate() // 🔑 CHUYỂN SANG FIXEDUPDATE ĐỂ TĂNG TẦN SUẤT KIỂM TRA
+    void FixedUpdate()
     {
         if (playerObj == null)
         {
@@ -46,26 +54,21 @@ public class BossController : MonoBehaviour
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // 🔑 TẤN CÔNG KHI VÀO TẦM 2.8F, KHÔNG BẬT ATTACKAREA NGAY
         if (!isAttacking && !attackLocked && distanceToPlayer <= attackRange)
         {
             StartAttack();
-            // Start coroutine to activate attack area after delay
             StartCoroutine(ActivateAttackAreaAfterDelay());
         }
-        // Chỉ di chuyển khi XA HƠN attackRange
         else if (!isAttacking && !attackLocked && distanceToPlayer > attackRange)
         {
             MoveTowardsPlayer();
         }
 
-        // 🔑 NGẮT CHỈ KHI XA HƠN 4.5F
         if (isAttacking && distanceToPlayer > interruptRange)
         {
             InterruptAttack();
         }
 
-        // Phase 2 teleport
         if (healthManager.isPhase2 && healthManager.CanTeleport() && Random.value < 0.1f)
         {
             healthManager.TeleportToPlayer(player);
@@ -89,14 +92,8 @@ public class BossController : MonoBehaviour
         float moveDirection = player.position.x - transform.position.x;
         transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
 
-        if (moveDirection > 0 && !facingRight)
-        {
-            Flip();
-        }
-        else if (moveDirection < 0 && facingRight)
-        {
-            Flip();
-        }
+        if (moveDirection > 0 && !facingRight) Flip();
+        else if (moveDirection < 0 && facingRight) Flip();
 
         animator.SetBool("isMoving", true);
     }
@@ -109,55 +106,48 @@ public class BossController : MonoBehaviour
         transform.localScale = scale;
     }
 
-    // 🔑 TẤN CÔNG CHỚP NHOÁNG, KHÔNG BẬT ATTACKAREA NGAY
     void StartAttack()
     {
         isAttacking = true;
-        attackLocked = true; // 🔒 LOCK ATTACK
+        attackLocked = true;
         animator.SetBool("isAttacking", true);
         animator.SetBool("isMoving", false);
-        animator.SetTrigger("Attack");
         lastAttackTime = Time.time;
         
-        // 🔑 AUTO UNLOCK SAU 0.5s (animation duration)
         StartCoroutine(UnlockAttackAfterDuration());
-        
-        Debug.Log("⚔️ Boss QUICK ATTACK LOCKED!");
     }
 
-    // 🔑 KÍCH HOẠT ATTACKAREA SAU KHOẢNG THỜI GIAN ĐỂ PHỎNG THEO ANIMATION
     private IEnumerator ActivateAttackAreaAfterDelay()
     {
-        yield return new WaitForSeconds(attackActivationDelay); // Delay before activating
-        if (isAttacking && !attackLocked) // Ensure still in attack state
+        yield return new WaitForSeconds(attackActivationDelay);
+        if (isAttacking && attackArea != null)
         {
-            ActivateAttackArea();
-            Debug.Log("⚔️ Attack Area Activated after Delay!");
+            attackArea.Activate(); // AttackArea handles OnTriggerEnter2D -> damage player
         }
     }
 
-    // 🔑 AUTO UNLOCK SAU KHI HOÀN THÀNH ATTACK
     private IEnumerator UnlockAttackAfterDuration()
     {
         yield return new WaitForSeconds(attackLockDuration);
         attackLocked = false;
-        isAttacking = false; // Reset attack state
+        isAttacking = false;
         animator.SetBool("isAttacking", false);
-        DeactivateAttackArea();
-        Debug.Log("🔓 Boss ATTACK UNLOCKED - Ready for next hit!");
+        // ensure hitbox off
+        if (attackArea != null)
+            attackArea.StopAllCoroutines(); // stop activate coroutine if running
     }
 
-    // 🔑 NGẮT CHỈ KHI THỰC SỰ XA
     void InterruptAttack()
     {
-        if (attackLocked) return; // KHÔNG NGẮT KHI ĐANG LOCK
-        
+        if (attackLocked) return;
         isAttacking = false;
         attackLocked = false;
         animator.SetBool("isAttacking", false);
         animator.SetTrigger("interruptAttack");
-        DeactivateAttackArea();
-        Debug.Log(" Boss INTERRUPTED - Player too far!");
+        if (attackArea != null)
+        {
+            attackArea.StopAllCoroutines();
+        }
     }
 
     public void DealDamageToBoss(int damage)
@@ -165,43 +155,25 @@ public class BossController : MonoBehaviour
         if (healthManager != null)
         {
             healthManager.TakeDamage(damage);
-            Debug.Log($"Boss took {damage} damage! HP: {healthManager.currentHealth}/{healthManager.maxHealth}");
         }
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player") && attackArea.gameObject.activeSelf && playerHealth != null)
-        {
-            playerHealth.TakeDamage(bossDamage, transform);
-            Debug.Log($"Boss CHÉM Player! Damage: {bossDamage} - Player HP reduced!");
-            
-            Rigidbody2D playerRb = collision.GetComponent<Rigidbody2D>();
-            if (playerRb != null)
-            {
-                playerRb.linearVelocity = Vector2.zero;
-                StartCoroutine(ReleasePlayerMovement(playerRb));
-            }
-        }
-    }
-
-    private IEnumerator ReleasePlayerMovement(Rigidbody2D playerRb)
-    {
-        yield return new WaitForSeconds(0.1f);
-        if (playerRb != null)
-        {
-            playerRb.linearVelocity = Vector2.zero;
-        }
-    }
-
+    // expose utility methods if other systems want to trigger area manually
     public void ActivateAttackArea()
     {
-        attackArea.gameObject.SetActive(true);
+        attackArea?.Activate();
     }
 
     public void DeactivateAttackArea()
     {
-        attackArea.gameObject.SetActive(false);
+        // stop any active coroutine and disable collider
+        if (attackArea != null)
+        {
+            attackArea.StopAllCoroutines();
+            // ensure collider off
+            var col = attackArea.GetComponent<Collider2D>();
+            if (col != null) col.enabled = false;
+        }
     }
 
     public void OnBossHitByWeapon(int damage)

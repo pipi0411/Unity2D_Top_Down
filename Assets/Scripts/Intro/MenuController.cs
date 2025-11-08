@@ -11,6 +11,7 @@ public class MenuController : MonoBehaviour
     [SerializeField] private GameObject continueButton;
 
     private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
+    private bool isStartingNewGame = false;
 
     private void Start()
     {
@@ -22,6 +23,12 @@ public class MenuController : MonoBehaviour
         }
 
         RefreshContinueVisibility();
+    }
+
+    private void OnDestroy()
+    {
+        // cleanup subscription nếu object menu bị hủy
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void RefreshContinueVisibility()
@@ -36,78 +43,82 @@ public class MenuController : MonoBehaviour
     {
         try
         {
-            // Nếu có SceneManagement, dùng API của nó để reset triệt để
+            // delete save file immediately so start is always "clean"
+            if (File.Exists(savePath))
+                File.Delete(savePath);
+
+            // mark flag so OnSceneLoaded knows to initialize for a fresh run
+            isStartingNewGame = true;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+
+            // Try to reset SceneManagement if present (do not destroy its GameObject here)
             if (SceneManagement.Instance != null)
             {
                 SceneManagement.Instance.ResetForNewGame();
-
-                // Hủy luôn object singleton nếu nó là DontDestroyOnLoad để tránh giữ state cũ
-                if (SceneManagement.Instance.gameObject != null)
-                {
-                    Destroy(SceneManagement.Instance.gameObject);
-                }
-            }
-            else
-            {
-                // Nếu không có SceneManagement thì xóa file save trực tiếp
-                if (File.Exists(savePath))
-                {
-                    File.Delete(savePath);
-                }
+                // don't destroy the manager object immediately — it may be needed across scenes
             }
 
-            // 🔹 Xóa hết dữ liệu trong EconomyManager
+            // Reset economy / other managers that have Instance singletons
             if (EconomyManager.Instance != null)
-            {
                 EconomyManager.Instance.SetGold(0);
-            }
 
-            // (tùy ý) reset các manager khác nếu có
-            if (PlayerHealth.Instance != null)
+            // Reset ActiveWeapon to default (may be null)
+            ActiveWeapon.Instance?.EquipWeaponByName("");
+
+            // Ensure time scale is normal and load the first scene
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(firstSceneName, LoadSceneMode.Single);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[MenuController] StartGame failed: {e.Message}");
+            // try best-effort to still load scene
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(firstSceneName, LoadSceneMode.Single);
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!isStartingNewGame) return;
+        isStartingNewGame = false;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        // WaitOneFrame pattern could be used if some objects initialize in Awake/A Start later.
+        // Here we attempt to find the player and reset health/give default equip.
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            var ph = playerObj.GetComponent<PlayerHealth>();
+            if (ph != null)
             {
-                // Try to find a max-health value via common property/field names; fall back to a safe default.
-                var ph = PlayerHealth.Instance;
-                int maxHealth = -1;
+                // Try to set to a sensible starting max or a property on the PlayerHealth itself
+                int maxHealth = 100;
                 var type = ph.GetType();
-                var prop = type.GetProperty("MaxHealth") ?? type.GetProperty("maxHealth") ?? type.GetProperty("MaxHP") ?? type.GetProperty("maxHP") ?? type.GetProperty("StartingHealth") ?? type.GetProperty("startingHealth");
+                var prop = type.GetProperty("MaxHealth") ?? type.GetProperty("maxHealth");
                 if (prop != null)
                 {
                     var val = prop.GetValue(ph);
                     if (val is int) maxHealth = (int)val;
                     else if (val is float) maxHealth = Mathf.RoundToInt((float)val);
                 }
+                // If PlayerHealth exposes SetHealth method
+                var setMethod = type.GetMethod("SetHealth");
+                if (setMethod != null)
+                    setMethod.Invoke(ph, new object[] { maxHealth });
                 else
-                {
-                    var field = type.GetField("MaxHealth") ?? type.GetField("maxHealth") ?? type.GetField("MaxHP") ?? type.GetField("maxHP") ?? type.GetField("StartingHealth") ?? type.GetField("startingHealth");
-                    if (field != null)
-                    {
-                        var val = field.GetValue(ph);
-                        if (val is int) maxHealth = (int)val;
-                        else if (val is float) maxHealth = Mathf.RoundToInt((float)val);
-                    }
-                }
-
-                if (maxHealth <= 0)
-                {
-                    // Fallback default if no max value found; adjust as needed for your game.
-                    maxHealth = 100;
-                }
-
-                ph.SetHealth(maxHealth);
+                    // fallback to common SetHealth signature on instance
+                    ph.SetHealth(maxHealth);
             }
-            ActiveWeapon.Instance?.EquipWeaponByName("");
         }
-        catch (System.Exception e)
+        else
         {
-            Debug.LogError($"[MenuController] Delete or reset failed: {e.Message}");
+            Debug.LogWarning("[MenuController] Player not found on scene load. Ensure the Player prefab with tag 'Player' exists in the first scene.");
         }
 
-        // 🔹 Cập nhật lại UI Continue
+        // Ensure UI Continue is hidden after starting fresh
         RefreshContinueVisibility();
-
-        // 🔹 Load lại scene đầu tiên
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(firstSceneName);
     }
 
     public void ContinueGame()

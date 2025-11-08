@@ -17,5 +17,5 @@ MonoBehaviour:
   - {fileID: 412807667820849927, guid: fc67bd08f82c1b742ab8f5521b305924, type: 3}
   enemyCount: 1
   spawnDelay: 2
-  waveColor: {r: 1, g: 1, b: 1, a: 1}
+  waveColor: {r: 0.9622642, g: 0, b: 0, a: 1}
   isBossWave: 1

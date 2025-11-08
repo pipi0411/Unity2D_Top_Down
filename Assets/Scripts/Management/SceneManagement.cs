@@ -285,6 +285,25 @@ public class SceneManagement : Singleton<SceneManagement>
             // delete save file and notify listeners
             DeleteSave();
 
+            // --- NEW: destroy any persistent Player objects left from previous runs ---
+            try
+            {
+                var players = GameObject.FindGameObjectsWithTag("Player");
+                foreach (var p in players)
+                {
+                    // persistent objects live in scene named "DontDestroyOnLoad"
+                    if (p != null && p.scene.name == "DontDestroyOnLoad")
+                    {
+                        Debug.Log($"[SceneManagement] Destroying persistent Player object: {p.name}");
+                        UnityEngine.Object.DestroyImmediate(p);
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[SceneManagement] failed to cleanup persistent Player: {ex.Message}");
+            }
+
             // notify subscribers explicitly that there's no save
             SaveStateChanged?.Invoke(false);
         }

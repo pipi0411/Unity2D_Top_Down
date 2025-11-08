@@ -103,14 +103,14 @@ AnimationClip:
   - time: 0.3
     functionName: ActivateAttackArea
     data: 
-    objectReferenceParameter: {fileID: 11500000, guid: 7d8b27d7ed4ec40418ee94acdcc06d97, type: 3}
-    floatParameter: 0
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 1
     intParameter: 0
     messageOptions: 0
   - time: 0.31666666
     functionName: DeactivateAttackArea
     data: 
-    objectReferenceParameter: {fileID: 11500000, guid: 7d8b27d7ed4ec40418ee94acdcc06d97, type: 3}
+    objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
