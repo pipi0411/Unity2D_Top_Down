@@ -189,6 +189,8 @@ MonoBehaviour:
   currentHealth: 10
   healthSlider: {fileID: 135224408494173731}
   isPhase2: 0
+  gemPrefab: {fileID: 4253479202917515168, guid: 5c04ac2b9c9111846ba6f56c09f85f11, type: 3}
+  gemDropAmount: 1
 --- !u!1 &1699655824056114829
 GameObject:
   m_ObjectHideFlags: 0

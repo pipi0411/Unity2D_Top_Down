@@ -20,6 +20,12 @@ public class BossHealthManager : MonoBehaviour
 
     private Animator animator;
 
+    [Header("Drops")]
+    // Prefab chứa GemPickup
+    public GameObject gemPrefab;
+    // Số viên gem spawn (mỗi viên sẽ có amount = 1). Nếu muốn 1 object chứa nhiều gem, thay logic tương ứng.
+    public int gemDropAmount = 3;
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -101,7 +107,20 @@ public class BossHealthManager : MonoBehaviour
         var controller = GetComponent<BossController>();
         if (controller != null) controller.enabled = false;
 
-        // Cho anim chạy xong
+        // Spawn gem khi chết (spawn nhiều viên rải quanh vị trí boss)
+        if (gemPrefab != null && GemManager.Instance != null)
+        {
+            for (int i = 0; i < Mathf.Max(1, gemDropAmount); i++)
+            {
+                Vector2 spawnPos = (Vector2)transform.position + UnityEngine.Random.insideUnitCircle * 0.5f;
+                GemManager.Instance.SpawnGemPrefab(gemPrefab, spawnPos, 1);
+            }
+
+            // phát âm thanh rơi item qua AudioManager (nếu có)
+            AudioManager.Instance?.PlayItemDrop();
+        }
+
+        // Cho anim Die chạy rồi hủy object
         Destroy(gameObject, 1.5f);
     }
 }

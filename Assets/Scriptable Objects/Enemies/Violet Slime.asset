@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2293dd823b3f1554cadc485257fbc896, type: 3}
   m_Name: Violet Slime
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  moveSpeed: 3
   roamChangeDirTime: 2
-  attackRange: 1.5
+  attackRange: 5
   attackCooldown: 2
   stopMovingWhileAttacking: 0
-  startingHealth: 3
+  startingHealth: 5
   knockBackThrust: 15
   deathVFXPrefab: {fileID: 604905392258511773, guid: f7c7c924630010f47ba66560d40147d2, type: 3}
   flashMaterial: {fileID: 2100000, guid: b1163cc7e63782545a105996281c9059, type: 2}

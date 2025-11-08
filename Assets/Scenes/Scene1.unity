@@ -17393,13 +17393,19 @@ MonoBehaviour:
     sceneName: Scene1
     waves:
     - {fileID: 11400000, guid: daa6dcfd70420b343a66b0459acdf901, type: 2}
+    - {fileID: 11400000, guid: 834369c08e0ab1647974db3af2e95be2, type: 2}
+    - {fileID: 11400000, guid: 458af613787639e478fd012bee50f0ea, type: 2}
   - scene: {fileID: 102900000, guid: d459fb801fb41c84296ed4c93d1d5f64, type: 3}
     sceneName: Scene2
     waves:
-    - {fileID: 11400000, guid: 834369c08e0ab1647974db3af2e95be2, type: 2}
+    - {fileID: 11400000, guid: 847195b1b0cb6ff40b0f6eddf04ca4c3, type: 2}
+    - {fileID: 11400000, guid: 7df307216b04db94c9f89c3a005abba9, type: 2}
+    - {fileID: 11400000, guid: a784cef453cf30a499d03fae4687b4c2, type: 2}
   - scene: {fileID: 102900000, guid: e271ae1b63ede66458ce93c59e7d6446, type: 3}
     sceneName: Boss
     waves:
+    - {fileID: 11400000, guid: 458af613787639e478fd012bee50f0ea, type: 2}
+    - {fileID: 11400000, guid: a784cef453cf30a499d03fae4687b4c2, type: 2}
     - {fileID: 11400000, guid: 45156f0491b25ec40b9cd2469a353124, type: 2}
   timeBetweenWaves: 5
 --- !u!61 &1024418662796198424
@@ -17881,6 +17887,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4360417971010324119, guid: 0475015d5432d4946a33fe382cbba4ba, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4727059434418294964, guid: 0475015d5432d4946a33fe382cbba4ba, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 1912
+      objectReference: {fileID: 0}
+    - target: {fileID: 4727059434418294964, guid: 0475015d5432d4946a33fe382cbba4ba, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -71
+      objectReference: {fileID: 0}
+    - target: {fileID: 6220547176964189629, guid: 0475015d5432d4946a33fe382cbba4ba, type: 3}
+      propertyPath: m_text
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6248588377185042790, guid: 0475015d5432d4946a33fe382cbba4ba, type: 3}
@@ -18729,10 +18747,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5631150411022259239, guid: c2317e5325af38347bf8622dc30c817f, type: 3}
-      propertyPath: uiCanvasPrefab
-      value: 
-      objectReference: {fileID: 8366244819991471170, guid: 0475015d5432d4946a33fe382cbba4ba, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

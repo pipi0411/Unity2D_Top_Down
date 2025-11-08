@@ -290,6 +290,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: 58087ca2309fb6f47a170d1b9c370c93, type: 2}
+  fallbackStartingHealth: 1
+  fallbackFlashRestoreTime: 0.1
 --- !u!114 &5853806220877657311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,8 +343,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 5335508896712414367, guid: 890fb155504005342a8f95d513c75530, type: 3}
-  bulletMoveSpeed: 7
-  burstCount: 12
+  bulletMoveSpeed: 5
+  burstCount: 7
   projectilesPerBurst: 1
   angleSpread: 0
   startingDistance: 0.3

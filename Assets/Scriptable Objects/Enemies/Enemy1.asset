@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2293dd823b3f1554cadc485257fbc896, type: 3}
   m_Name: Enemy1
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  moveSpeed: 3
   roamChangeDirTime: 2
-  attackRange: 1.5
+  attackRange: 5
   attackCooldown: 2
   stopMovingWhileAttacking: 0
   startingHealth: 3
