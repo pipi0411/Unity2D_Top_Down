@@ -95,7 +95,17 @@ public class AreaExit : MonoBehaviour
         // nếu muốn load waves cho scene mới, truyền target explicit
         var wave = FindFirstObjectByType<EnemyWaveSpawner>();
         if (wave != null && wave == EnemyWaveSpawner.Instance)
-            EnemyWaveSpawner.Instance.LoadSceneWave(target); // ← đảm bảo spawner load đúng scene
+        {
+            // NEW: skip spawning if SceneManagement already marked this scene cleared
+            if (SceneManagement.Instance != null && SceneManagement.Instance.IsSceneCleared(target))
+            {
+                Debug.Log($"[AreaExit] Scene '{target}' already cleared — skipping wave spawn.");
+            }
+            else
+            {
+                EnemyWaveSpawner.Instance.LoadSceneWave(target); // ← unchanged behavior
+            }
+        }
     }
 
 

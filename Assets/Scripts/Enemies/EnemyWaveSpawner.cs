@@ -12,9 +12,8 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
     [System.Serializable]
     private class SceneWave
     {
-#if UNITY_EDITOR
-        public SceneAsset scene; // chỉ dùng trong editor để chọn nhanh
-#endif
+        // Luôn có 1 field UnityEngine.Object để layout serialized giống nhau giữa Editor và Build
+        [SerializeField] private UnityEngine.Object scene;
         [SerializeField] private string sceneName;
         public List<Wave> waves;
 
@@ -22,18 +21,22 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
         {
             get
             {
-#if UNITY_EDITOR
-                return scene != null ? scene.name : (!string.IsNullOrEmpty(sceneName) ? sceneName : "NULL");
-#else
-                return !string.IsNullOrEmpty(sceneName) ? sceneName : "NULL";
-#endif
+                // ưu tiên sceneName nếu có, fallback dùng scene.name nếu được gán (editor sẽ gán SceneAsset vào trường này)
+                if (!string.IsNullOrEmpty(sceneName)) return sceneName;
+                return scene != null ? scene.name : "NULL";
             }
         }
 
 #if UNITY_EDITOR
+        // chỉ dùng trong Editor để dễ chọn SceneAsset và đồng bộ lại sceneName
+        public SceneAsset SceneAsset => scene as SceneAsset;
         public void SyncSceneNameFromEditor()
         {
-            if (scene != null) sceneName = scene.name;
+            if (scene != null)
+            {
+                var sa = scene as SceneAsset;
+                if (sa != null) sceneName = sa.name;
+            }
         }
 #endif
     }

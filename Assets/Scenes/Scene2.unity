@@ -428,6 +428,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0475015d5432d4946a33fe382cbba4ba, type: 3}
+--- !u!114 &12693180 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8844446876895130885, guid: 0475015d5432d4946a33fe382cbba4ba, type: 3}
+  m_PrefabInstance: {fileID: 12693179}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &92094738 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1666660842858299353, guid: 1c1e2994d1102d14cb3af699e9992e1f, type: 3}
@@ -23428,9 +23439,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nextScene: {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
-  nextSceneName: 
+  nextSceneName: Scene1
   sceneTransitionName: EEntry
-  warningText: {fileID: 0}
+  warningText: {fileID: 12693180}
   fadeDuration: 0.5
   displayTime: 2
   requireWavesCleared: 1

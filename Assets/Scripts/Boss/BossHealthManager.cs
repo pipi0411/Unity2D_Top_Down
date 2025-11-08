@@ -43,12 +43,6 @@ public class BossHealthManager : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (IsDead) return;
-
-        if (other.CompareTag("Weapon"))
-        {
-            int damage = 10; // TODO: lấy damage thật từ vũ khí
-            TakeDamage(damage);
-        }
     }
 
     public void TakeDamage(int damage)
