@@ -47,6 +47,14 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
     [Header("Timing")]
     [SerializeField] private float timeBetweenWaves = 5f;
 
+    [Header("Intro / Boss Clear")]
+    [Tooltip("Nếu true sẽ load introSceneName khi boss chết và scene trống")]
+    [SerializeField] private bool loadIntroOnBossDeath = false;
+    [Tooltip("Tên scene intro (phải có trong Build Settings)")]
+    [SerializeField] private string introSceneName = "";
+    [Tooltip("Delay trước khi load intro (giây)")]
+    [SerializeField] private float introLoadDelay = 0.5f;
+
     private List<Wave> waves;
     private int currentLevelIndex = 0;
     private int currentWaveIndex = 0;
@@ -341,6 +349,51 @@ public class EnemyWaveSpawner : Singleton<EnemyWaveSpawner>
     private void HandleBossDeath(BossHealthManager bh)
     {
         enemiesAlive = Mathf.Max(0, enemiesAlive - 1);
+        // khởi kiểm tra xem sau khi boss chết scene có thực sự trống → nếu trống và cấu hình thì load intro
+        StartCoroutine(CheckSceneClearAfterBossDeath());
+    }
+
+    private IEnumerator CheckSceneClearAfterBossDeath()
+    {
+        // nhỏ delay để cho Die() xử lý/hủy object xong
+        yield return new WaitForSeconds(0.5f);
+
+        // re-register + recount (giống final guard)
+        RegisterExistingEnemies();
+        RegisterExistingBosses();
+        int finalAlive = CountAliveTracked();
+        if (finalAlive > 0)
+        {
+            enemiesAlive = finalAlive;
+            yield break;
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        RegisterExistingEnemies();
+        RegisterExistingBosses();
+        finalAlive = CountAliveTracked();
+        if (finalAlive > 0)
+        {
+            enemiesAlive = finalAlive;
+            yield break;
+        }
+
+        // nếu không còn thực thể, đánh dấu cleared và load intro nếu được bật
+        if (waves != null && waves.Count > 0 && spawnedAnyEnemies)
+        {
+            string finishedScene = SceneManager.GetActiveScene().name;
+            Debug.Log($"[WaveSpawner] All waves completed after boss death in scene {finishedScene}. Marking cleared.");
+            SceneManagement.Instance?.MarkSceneCleared(finishedScene);
+
+            if (loadIntroOnBossDeath && !string.IsNullOrEmpty(introSceneName))
+            {
+                Debug.Log($"[WaveSpawner] Loading intro scene '{introSceneName}' after boss death.");
+                SceneManagement.Instance?.SetTransitionName(introSceneName);
+                yield return new WaitForSeconds(introLoadDelay);
+                SceneManager.LoadScene(introSceneName);
+            }
+        }
     }
 
     private Vector3 GetSpawnPosition()

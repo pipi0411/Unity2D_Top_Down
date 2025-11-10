@@ -23,3 +23,5 @@ MonoBehaviour:
     bgmClip: {fileID: 8300000, guid: 61b1924261fb76f4db18a8a5f3d01a62, type: 3}
   - sceneName: Boss
     bgmClip: {fileID: 8300000, guid: a75b31dffd809d74581f41f94b3e6047, type: 3}
+  - sceneName: EndChapter1
+    bgmClip: {fileID: 8300000, guid: c9f6cf1b5b6a8a64fa2523897bceaa72, type: 3}
