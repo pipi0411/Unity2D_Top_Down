@@ -20,6 +20,16 @@ public class GemManager : MonoBehaviour
 
     public int CurrentGems => currentGems;
 
+    // Set trực tiếp số gem (dùng khi cần reset)
+    public void SetGems(int amount)
+    {
+        currentGems = Mathf.Max(0, amount);
+        OnGemsChanged?.Invoke(currentGems);
+    }
+
+    // Shortcut để reset về 0
+    public void ResetGems() => SetGems(0);
+
     public void AddGems(int amount)
     {
         if (amount <= 0) return;

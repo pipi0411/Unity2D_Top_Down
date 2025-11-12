@@ -364,13 +364,19 @@ MonoBehaviour:
   storyText: {fileID: 1655597211}
   pages:
   - image: {fileID: 2208823839436162729, guid: 771ab78584b041044ab6261695f344f6, type: 3}
-    text: 
+    text: "Tr\u1EADn chi\u1EBFn v\u1EDBi t\xEAn th\u1EE7 h\u1ED9 \u0111\xE3 k\u1EBFt
+      th\xFAc, Elara \u0111\xE3 may m\u1EAFn s\u1ED1ng s\xF3t."
   - image: {fileID: 6083948989930548282, guid: 916be0c4041c30f44a89db0f611181c0, type: 3}
-    text: 
+    text: "C\u01A1 th\u1EC3 c\u1EE7a t\xEAn th\u1EE7 h\u1ED9 tan bi\u1EBFn, \u0111\u1EC3
+      l\u1EA1i 1 vi\xEAn tinh th\u1EA1ch th\u1EA7n b\xED."
   - image: {fileID: 8664916456544855942, guid: a2f7acd14cf08fe45814b913679eff9a, type: 3}
-    text: 
+    text: "Khi Elara ch\u1EA1m v\xE0o n\xF3, t\u1EEB \u0111\xE2u xu\u1EA5t hi\u1EC7n
+      1 chi\u1EBFc h\u1ED1 b\xED \u1EA9n."
   - image: {fileID: 7669465561391994950, guid: 387aba8dbfe30bf4289c3ef0d9175df3, type: 3}
-    text: 
+    text: "Tr\u01B0\u1EDBc khi c\u1EADu c\xF3 th\u1EC3 ph\u1EA3n \u1EE9ng, c\u01A1
+      th\u1EC3 c\u1EADu b\u1ECB c\u01B0\u1EE1ng ch\u1EBF d\u1ECBch chuy\u1EC3n v\xE0o
+      chi\u1EBFc h\u1ED1 \u0111en. \u0110i\u1EC1u g\xEC \u0111ang ch\u1EDD \u0111\xF3n
+      Elara \u1EDF ph\xEDa tr\u01B0\u1EDBc ?"
   - image: {fileID: 3784380053585455370, guid: 6ff2aa6654ab7724fbd7ac17a8b904d9, type: 3}
     text: Comming Soon Chapter 2
   fadeDuration: 0.5

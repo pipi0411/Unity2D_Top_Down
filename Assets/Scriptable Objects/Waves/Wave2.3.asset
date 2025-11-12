@@ -15,7 +15,7 @@ MonoBehaviour:
   waveName: 
   enemyPrefabs:
   - {fileID: 7244652892982621212, guid: 286a3c3710ad41648951a8201d789280, type: 3}
-  enemyCount: 5
-  spawnDelay: 1
+  enemyCount: 10
+  spawnDelay: 2
   waveColor: {r: 1, g: 1, b: 1, a: 1}
   isBossWave: 0

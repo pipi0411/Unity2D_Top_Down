@@ -17393,13 +17393,19 @@ MonoBehaviour:
     sceneName: Scene1
     waves:
     - {fileID: 11400000, guid: daa6dcfd70420b343a66b0459acdf901, type: 2}
+    - {fileID: 11400000, guid: 834369c08e0ab1647974db3af2e95be2, type: 2}
+    - {fileID: 11400000, guid: 458af613787639e478fd012bee50f0ea, type: 2}
   - scene: {fileID: 102900000, guid: d459fb801fb41c84296ed4c93d1d5f64, type: 3}
     sceneName: Scene2
     waves:
     - {fileID: 11400000, guid: 847195b1b0cb6ff40b0f6eddf04ca4c3, type: 2}
+    - {fileID: 11400000, guid: 7df307216b04db94c9f89c3a005abba9, type: 2}
+    - {fileID: 11400000, guid: a784cef453cf30a499d03fae4687b4c2, type: 2}
   - scene: {fileID: 102900000, guid: e271ae1b63ede66458ce93c59e7d6446, type: 3}
     sceneName: Boss
     waves:
+    - {fileID: 11400000, guid: 458af613787639e478fd012bee50f0ea, type: 2}
+    - {fileID: 11400000, guid: a784cef453cf30a499d03fae4687b4c2, type: 2}
     - {fileID: 11400000, guid: 45156f0491b25ec40b9cd2469a353124, type: 2}
   timeBetweenWaves: 5
   loadIntroOnBossDeath: 1

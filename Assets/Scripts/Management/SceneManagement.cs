@@ -285,6 +285,9 @@ public class SceneManagement : Singleton<SceneManagement>
             // delete save file and notify listeners
             DeleteSave();
 
+            // Reset GemManager (gem UI sẽ được cập nhật qua event)
+            try { GemManager.Instance?.SetGems(0); } catch { }
+
             // --- NEW: destroy any persistent Player objects left from previous runs ---
             try
             {
