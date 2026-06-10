@@ -347,7 +347,16 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      MiniGhost_Idle_0: 3765618723317658782
+      MiniGhost_Idle_1: -2306452160867149569
+      MiniGhost_Idle_2: -1229257884677027501
+      MiniGhost_Idle_3: 6836659967585602950
+      MiniGhost_Idle_4: -6750237409509019779
+      MiniGhost_Idle_5: -7080782774691593360
+      MiniGhost_Idle_6: 5445029015278569169
+      MiniGhost_Idle_7: -1089092760445749403
+      MiniGhost_Idle_8: -5464906062925788776
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

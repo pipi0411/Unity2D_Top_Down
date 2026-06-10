@@ -422,7 +422,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      MiniGhost_Spawn_0: -3710036881189378945
+      MiniGhost_Spawn_1: 501955410553950401
+      MiniGhost_Spawn_10: -7678508886832159283
+      MiniGhost_Spawn_11: 106765774739791883
+      MiniGhost_Spawn_2: -8763949822190602521
+      MiniGhost_Spawn_3: -3903993174031230797
+      MiniGhost_Spawn_4: -6477977321594015666
+      MiniGhost_Spawn_5: -2862642928978995397
+      MiniGhost_Spawn_6: -6317832385188639878
+      MiniGhost_Spawn_7: -2614950121130660841
+      MiniGhost_Spawn_8: -960057369145313049
+      MiniGhost_Spawn_9: 1007047662724496653
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
